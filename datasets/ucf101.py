@@ -130,7 +130,7 @@ class ucf101(data.Dataset):
             self.name_pattern = name_pattern
         else:
             if self.modality == "rgb":
-                self.name_pattern = "img_%05d.jpg"
+                self.name_pattern = "frame%06d.jpg"
             elif self.modality == "flow":
                 self.name_pattern = "flow_%s_%05d.jpg"
 

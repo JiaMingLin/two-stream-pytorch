@@ -228,10 +228,10 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure accuracy and record loss
         prec1, prec3 = accuracy(output.data, target, topk=(1, 3))
-        acc_mini_batch += prec1[0]
+        acc_mini_batch += prec1
         loss = criterion(output, target_var)
         loss = loss / args.iter_size
-        loss_mini_batch += loss.data[0]
+        loss_mini_batch += loss.data
         loss.backward()
 
         if (i+1) % args.iter_size == 0:
@@ -278,9 +278,9 @@ def validate(val_loader, model, criterion):
 
         # measure accuracy and record loss
         prec1, prec3 = accuracy(output.data, target, topk=(1, 3))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top3.update(prec3[0], input.size(0))
+        losses.update(loss.data, input.size(0))
+        top1.update(prec1, input.size(0))
+        top3.update(prec3, input.size(0))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
