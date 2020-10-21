@@ -66,16 +66,25 @@ def ReadSegmentFlow(path, offsets, new_height, new_width, new_length, is_color, 
         cv_read_flag = cv2.IMREAD_GRAYSCALE     # = 0
     interpolation = cv2.INTER_LINEAR
 
+    action = path.split('/')[-1]
+    parent_dir = path.replace(action, "")
+    path_pattern = parent_dir + "/%s/" + action
+
     sampled_list = []
     for offset_id in range(len(offsets)):
         offset = offsets[offset_id]
         for length_id in range(1, new_length+1):
-            frame_name_x = name_pattern % ("x", length_id + offset)
-            frame_path_x = path + "/" + frame_name_x
+            # full path = tvl1_flow/u/ACTION/frame000112.jpg
+            frame_name_x = name_pattern % (length_id + offset)
+            # path = tvl1_flow/u/ACTIOM
+            frame_path_x = path_pattern % ("u") + "/" + frame_name_x
             cv_img_origin_x = cv2.imread(frame_path_x, cv_read_flag)
-            frame_name_y = name_pattern % ("y", length_id + offset)
-            frame_path_y = path + "/" + frame_name_y
+
+
+            frame_name_y = name_pattern % (length_id + offset)
+            frame_path_y = path_pattern % ("v") + "/" + frame_name_y
             cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
+
             if cv_img_origin_x is None or cv_img_origin_y is None:
                print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
                sys.exit()
@@ -132,7 +141,8 @@ class ucf101(data.Dataset):
             if self.modality == "rgb":
                 self.name_pattern = "frame%06d.jpg"
             elif self.modality == "flow":
-                self.name_pattern = "flow_%s_%05d.jpg"
+                self.name_pattern = "frame%06d.jpg"
+                # self.name_pattern = "flow_%s_%05d.jpg"
 
         self.is_color = is_color
         self.num_segments = num_segments

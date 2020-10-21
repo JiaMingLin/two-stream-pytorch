@@ -230,6 +230,7 @@ def flow_resnet50(pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
+    in_channels = 20
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
         # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
@@ -237,10 +238,12 @@ def flow_resnet50(pretrained=False, **kwargs):
 
         model_dict = model.state_dict()
 
+        new_pretrained_dict = change_key_names(pretrained_dict, in_channels)
+
         # 1. filter out unnecessary keys
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        new_pretrained_dict = {k: v for k, v in new_pretrained_dict.items() if k in model_dict}
         # 2. overwrite entries in the existing state dict
-        model_dict.update(pretrained_dict) 
+        model_dict.update(new_pretrained_dict) 
         # 3. load the new state dict
         model.load_state_dict(model_dict)
 
