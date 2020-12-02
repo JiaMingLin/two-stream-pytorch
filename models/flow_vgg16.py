@@ -82,17 +82,20 @@ def change_key_names(old_params, in_channels):
         if layer_count < 26:
             if layer_count == 0:
                 rgb_weight = old_params[layer_key]
+                # print(type(rgb_weight))
                 rgb_weight_mean = torch.mean(rgb_weight, dim=1)
-                flow_weight = rgb_weight_mean.repeat(1,in_channels,1,1)
+                # TODO: ugly fix here, why torch.mean() turn tensor to Variable
+                # print(type(rgb_weight_mean))
+                flow_weight = rgb_weight_mean.unsqueeze(1).repeat(1,in_channels,1,1)
                 new_params[layer_key] = flow_weight
                 layer_count += 1
-                # print(layer_key, new_params[layer_key].size())
             else:
                 new_params[layer_key] = old_params[layer_key]
                 layer_count += 1
                 # print(layer_key, new_params[layer_key].size())
 
     return new_params
+
 
 def flow_vgg16(pretrained=False, **kwargs):
     """VGG 16-layer model (configuration "D")
@@ -112,7 +115,7 @@ def flow_vgg16(pretrained=False, **kwargs):
         # 1. filter out unnecessary keys
         new_pretrained_dict = {k: v for k, v in new_pretrained_dict.items() if k in model_dict}
         # 2. overwrite entries in the existing state dict
-        model_dict.update(new_pretrained_dict)
+        model_dict.update(new_pretrained_dict) 
         # 3. load the new state dict
         model.load_state_dict(model_dict)
 

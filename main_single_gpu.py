@@ -74,7 +74,7 @@ parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
 
 best_prec1 = 0
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 def main():
     global args, best_prec1
