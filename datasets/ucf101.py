@@ -174,7 +174,6 @@ class ucf101(data.Dataset):
             else:
                 print("Only phase train and val are supported.")
 
-
         if self.modality == "rgb":
             clip_input = ReadSegmentRGB(path,
                                         offsets,

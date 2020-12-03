@@ -190,7 +190,12 @@ class VideoClsCustom(dataset.Dataset):
             if self.slowfast:
                 clip_input = self._image_slowfast_cv2_loader(directory, duration, segment_indices, skip_offsets)
             else:
-                clip_input = self._image_TSN_cv2_loader(directory, duration, segment_indices, skip_offsets)
+                if self.modality == 'tvl1_flow':
+                    clip_input = self._tvl1_flow_TSN_cv2_loader(directory, duration, segment_indices, skip_offsets)
+                elif self.modality == 'lk_flow':
+                    pass
+                elif self.modality == 'rgb':
+                    clip_input = self._image_TSN_cv2_loader(directory, duration, segment_indices, skip_offsets)
 
         if self.transform is not None:
             clip_input = self.transform(clip_input)
@@ -315,7 +320,7 @@ class VideoClsCustom(dataset.Dataset):
                     offset += self.new_step
         return sampled_list
 
-    def _flow_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
+    def _tvl1_flow_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
         interpolation = cv2.INTER_LINEAR
         cv_read_flag = cv2.IMREAD_GRAYSCALE
 
@@ -326,15 +331,16 @@ class VideoClsCustom(dataset.Dataset):
         sampled_list = []
         for seg_ind in indices:
             offset = int(seg_ind)
-            for i, _ in enumerate(range(0, self.skip_length, self.new_step)):
+
+            for i, _ in enumerate(range(0, self.skip_length, self.new_step)):  # skip_length = new_step * new_length
                 if offset + skip_offsets[i] <= duration:
                     # full path = tvl1_flow/u/ACTION/frame000112.jpg
-                    frame_name_x = self.name_pattern % (offset + skip_offsets[i])
+                    frame_name_x = self.name_pattern % (offset + i)
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_x = path_pattern % ("u") + "/" + frame_name_x
                     cv_img_origin_x = cv2.imread(frame_path_x, cv_read_flag)
 
-                    frame_name_y = self.name_pattern % (offset + skip_offsets[i])
+                    frame_name_y = self.name_pattern % (offset + i)
                     frame_path_y = path_pattern % ("v") + "/" + frame_name_y
                     cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
 
@@ -349,7 +355,9 @@ class VideoClsCustom(dataset.Dataset):
                     cv_img_x = cv_img_origin_x
                     cv_img_y = cv_img_origin_y
 
-        return
+                of_frame = np.concatenate([np.expand_dims(cv_img_x, 2), np.expand_dims(cv_img_y, 2)], axis = 2)
+                sampled_list.append(of_frame)
+        return sampled_list
 
     def _image_slowfast_cv2_loader(self, directory, duration, indices, skip_offsets):
         sampled_list = []
