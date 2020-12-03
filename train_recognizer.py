@@ -27,9 +27,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train a model for video action recognition.')
     parser.add_argument('--dataset', type=str, default='ucf101', choices=['ucf101', 'kinetics400', 'somethingsomethingv2', 'hmdb51', 'custom'],
                         help='which dataset to use.')
-    parser.add_argument('--data-dir', type=str, default='/home/jswu/action_data/ucf101/jpegs_256',
+    parser.add_argument('--data-dir', type=str, default='/data/ucf101/jpegs_256/',
                         help='training (and validation) pictures to use.')
-    parser.add_argument('--val-data-dir', type=str, default='/home/jswu/action_data/ucf101/jpegs_256',
+    parser.add_argument('--val-data-dir', type=str, default='/data/ucf101/jpegs_256/',
                         help='validation pictures to use.')
     parser.add_argument('--train-list', type=str, default='datasets/settings/ucf101/train_rgb_split1.txt',
                         help='the list of training data')

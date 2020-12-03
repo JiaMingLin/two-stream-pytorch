@@ -3,7 +3,7 @@
 Code adapted from https://github.com/open-mmlab/mmaction and
 https://github.com/bryanyzhu/two-stream-pytorch"""
 import os
-from ..video_common import VideoClsCustom
+from .video_common import VideoClsCustom
 
 __all__ = ['UCF101']
 

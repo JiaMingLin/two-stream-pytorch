@@ -103,7 +103,7 @@ class VideoClsCustom(dataset.Dataset):
 
         super(VideoClsCustom, self).__init__()
 
-        from ...utils.filesystem import try_import_cv2, try_import_decord, try_import_mmcv
+        from gluoncv.utils.filesystem import try_import_cv2, try_import_decord, try_import_mmcv
         self.cv2 = try_import_cv2()
         self.root = root
         self.setting = setting
