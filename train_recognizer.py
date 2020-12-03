@@ -11,8 +11,11 @@ from mxnet.gluon.data.vision import transforms
 from mxboard import SummaryWriter
 from mxnet.contrib import amp
 
+from datasets.video_common.classification import VideoClsCustom
+from datasets.gluoncv_ucf101 import UCF101
+
 from gluoncv.data.transforms import video
-from gluoncv.data import UCF101, Kinetics400, SomethingSomethingV2, HMDB51, VideoClsCustom
+from gluoncv.data import Kinetics400, SomethingSomethingV2, HMDB51
 from gluoncv.model_zoo import get_model
 from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 from gluoncv.data.sampler import SplitSampler, ShuffleSplitSampler
@@ -306,7 +309,7 @@ def main():
     num_gpus = opt.num_gpus
     batch_size *= max(1, num_gpus)
     logger.info('Total batch size is set to %d on %d GPUs' % (batch_size, num_gpus))
-    context = [mx.gpu(1), mx.gpu(2)] if num_gpus > 0 else [mx.cpu()]
+    context = [mx.gpu(i)for i in range(num_gpus)] if num_gpus > 0 else [mx.cpu()]
     num_workers = opt.num_workers
 
     lr_decay = opt.lr_decay
