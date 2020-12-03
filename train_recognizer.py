@@ -69,6 +69,8 @@ def parse_args():
                         help='mode in which to train the model. options are symbolic, imperative, hybrid')
     parser.add_argument('--model', type=str, required=True,
                         help='type of model to use. see vision_model for options.')
+    parser.add_argument('--modality', type=str, default='rgb',
+                        help='source data modality.')
     parser.add_argument('--input-size', type=int, default=224,
                         help='size of the input image size. default is 224')
     parser.add_argument('--crop-ratio', type=float, default=0.875,
@@ -226,11 +228,13 @@ def get_data_loader(opt, batch_size, num_workers, logger, kvstore=None):
         train_dataset = UCF101(setting=opt.train_list, root=data_dir, train=True,
                                new_width=opt.new_width, new_height=opt.new_height, new_length=opt.new_length,
                                target_width=input_size, target_height=input_size,
+                               modality=opt.modality,
                                data_aug=opt.data_aug, num_segments=opt.num_segments, transform=transform_train,
                                name_pattern='frame%06d.jpg') #frame000084.jpg
         val_dataset = UCF101(setting=opt.val_list, root=data_dir, train=False,
                              new_width=opt.new_width, new_height=opt.new_height, new_length=opt.new_length,
                              target_width=input_size, target_height=input_size,
+                             modality=opt.modality,
                              data_aug=opt.data_aug, num_segments=opt.num_segments, transform=transform_test,
                              name_pattern='frame%06d.jpg')
     elif opt.dataset == 'somethingsomethingv2':

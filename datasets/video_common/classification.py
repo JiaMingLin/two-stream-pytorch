@@ -321,8 +321,8 @@ class VideoClsCustom(dataset.Dataset):
         return sampled_list
 
     def _tvl1_flow_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
-        interpolation = cv2.INTER_LINEAR
-        cv_read_flag = cv2.IMREAD_GRAYSCALE
+        interpolation = self.cv2.INTER_LINEAR
+        cv_read_flag = self.cv2.IMREAD_GRAYSCALE
 
         action = directory.split('/')[-1]
         parent_dir = directory.replace(action, "")
@@ -338,17 +338,17 @@ class VideoClsCustom(dataset.Dataset):
                     frame_name_x = self.name_pattern % (offset + i)
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_x = path_pattern % ("u") + "/" + frame_name_x
-                    cv_img_origin_x = cv2.imread(frame_path_x, cv_read_flag)
+                    cv_img_origin_x = self.cv2.imread(frame_path_x, cv_read_flag)
 
                     frame_name_y = self.name_pattern % (offset + i)
                     frame_path_y = path_pattern % ("v") + "/" + frame_name_y
-                    cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
+                    cv_img_origin_y = self.cv2.imread(frame_path_y, cv_read_flag)
 
                 if cv_img_origin_x is None or cv_img_origin_y is None:
                     print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
                     sys.exit()
                     # TODO: error handling here
-                if new_width > 0 and new_height > 0:
+                if self.new_width > 0 and self.new_height > 0:
                     cv_img_x = cv2.resize(cv_img_origin_x, (self.new_width, self.new_height), interpolation)
                     cv_img_y = cv2.resize(cv_img_origin_y, (self.new_width, self.new_height), interpolation)
                 else:
