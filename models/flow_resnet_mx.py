@@ -42,6 +42,8 @@ class ActionRecResNetV1b(HybridBlock):
                  partial_bn=False, **kwargs):
         super(ActionRecResNetV1b, self).__init__()
 
+        modality = kwargs['modality']
+
         if depth == 18:
             pretrained_model = resnet18_v1b(pretrained=pretrained_base, **kwargs)
             self.expansion = 1
