@@ -177,8 +177,12 @@ def get_data_loader(opt, batch_size, num_workers, logger, kvstore=None):
     val_data_dir = opt.val_data_dir
     scale_ratios = [float(i) for i in opt.scale_ratios.split(',')]
     input_size = opt.input_size
-    default_mean = [0.485, 0.456, 0.406]
-    default_std = [0.229, 0.224, 0.225]
+    if opt.modality == 'rgb':
+        default_mean = [0.485, 0.456, 0.406]
+        default_std = [0.229, 0.224, 0.225]
+    elif opt.modality == 'tvl1_flow' or opt.modality == 'lk_flow':
+        default_mean = [0.5, 0.5]
+        default_std = [0.226, 0.226]
 
     def batch_fn(batch, ctx):
         data = split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
@@ -482,6 +486,7 @@ def main():
                     outputs = []
                     for _, X in enumerate(data):
                         X = X.reshape((-1,) + X.shape[2:])
+                        print(X.shape)
                         pred = net(X.astype(opt.dtype, copy=False))
                         outputs.append(pred)
                     loss = [L(yhat, y.astype(opt.dtype, copy=False)) for yhat, y in zip(outputs, label)]

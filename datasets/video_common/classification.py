@@ -206,9 +206,14 @@ class VideoClsCustom(dataset.Dataset):
             clip_input = clip_input.reshape((-1,) + (sparse_sampels, 3, self.target_height, self.target_width))
             clip_input = np.transpose(clip_input, (0, 2, 1, 3, 4))
         else:
-            clip_input = np.stack(clip_input, axis=0)
-            clip_input = clip_input.reshape((-1,) + (self.new_length, 3, self.target_height, self.target_width))
-            clip_input = np.transpose(clip_input, (0, 2, 1, 3, 4))
+            if self.modality == 'rgb':
+                clip_input = np.stack(clip_input, axis=0)
+                clip_input = clip_input.reshape((-1,) + (self.new_length, 3, self.target_height, self.target_width))
+                clip_input = np.transpose(clip_input, (0, 2, 1, 3, 4))
+            else:
+                clip_input = np.stack(clip_input, axis=0)
+                clip_input = clip_input.reshape((-1,) + (self.new_length, 2, self.target_height, self.target_width))
+                clip_input = np.transpose(clip_input, (0, 2, 1, 3, 4))
 
         if self.new_length == 1:
             clip_input = np.squeeze(clip_input, axis=2)    # this is for 2D input case
