@@ -357,7 +357,7 @@ def main():
         opt.use_pretrained = opt.hashtag
     net = build_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained,
                     use_tsn=opt.use_tsn, num_segments=opt.num_segments, partial_bn=opt.partial_bn,
-                    bn_frozen=opt.freeze_bn)
+                    bn_frozen=opt.freeze_bn, modality=opt.modality)
     net.cast(opt.dtype)
     net.collect_params().reset_ctx(context)
 
