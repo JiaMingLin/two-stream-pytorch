@@ -16,10 +16,11 @@ from datasets.gluoncv_ucf101 import UCF101
 
 from gluoncv.data.transforms import video
 from gluoncv.data import Kinetics400, SomethingSomethingV2, HMDB51
-from gluoncv.model_zoo import get_model
+# from gluoncv.model_zoo import get_model
 from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 from gluoncv.data.sampler import SplitSampler, ShuffleSplitSampler
 
+import models
 
 #python3 train_recognizer.py --model resnet34_v1b_kinetics400 --num-classes 101 --num-gpus 2 --num-segments 3 --lr-mode step --lr 0.001 --lr-decay 0.1 --lr-decay-epoch 65,100,150 --num-epochs 200
 # CLI
@@ -290,6 +291,16 @@ def get_data_loader(opt, batch_size, num_workers, logger, kvstore=None):
 
     return train_data, val_data, batch_fn
 
+
+def build_model(name, nclass, pretrained=True,
+                    use_tsn=True, num_segments=3, partial_bn=True,
+                    bn_frozen=True, modality='rgb'):
+    model = models.__dict__[name](nclass, pretrained=True,
+                    use_tsn=True, num_segments=num_segments, partial_bn=partial_bn,
+                    bn_frozen=bn_frozen, modality=modality)
+    return model
+
+
 def main():
     opt = parse_args()
 
@@ -344,7 +355,7 @@ def main():
     model_name = opt.model
     if opt.use_pretrained and len(opt.hashtag) > 0:
         opt.use_pretrained = opt.hashtag
-    net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained,
+    net = build_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained,
                     use_tsn=opt.use_tsn, num_segments=opt.num_segments, partial_bn=opt.partial_bn,
                     bn_frozen=opt.freeze_bn)
     net.cast(opt.dtype)

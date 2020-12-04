@@ -9,7 +9,7 @@ import collections
 __all__ = ['resnet18_v1b_kinetics400',
            'resnet34_v1b_kinetics400']
 
-class ActionRecResNetV1b(HybridBlock):
+class ActionRecResNetV1bCustom(HybridBlock):
     r"""ResNet models for video action recognition
     Deep Residual Learning for Image Recognition, CVPR 2016
     https://arxiv.org/abs/1512.03385
@@ -40,7 +40,7 @@ class ActionRecResNetV1b(HybridBlock):
                  dropout_ratio=0.5, init_std=0.01,
                  num_segments=1, num_crop=1,
                  partial_bn=False, **kwargs):
-        super(ActionRecResNetV1b, self).__init__()
+        super(ActionRecResNetV1bCustom, self).__init__()
 
         modality = kwargs['modality']
 
@@ -129,6 +129,12 @@ def change_key_names(old_params, in_channels):
     return new_params
 
 
+"""
+net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained,
+                    use_tsn=opt.use_tsn, num_segments=opt.num_segments, partial_bn=opt.partial_bn,
+                    bn_frozen=opt.freeze_bn)
+"""
+
 def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
                              use_tsn=False, partial_bn=False,
                              num_segments=1, num_crop=1, root='~/.mxnet/models',
@@ -157,7 +163,7 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
     """
 
     modality = kwargs['modality']
-    model = ActionRecResNetV1b(depth=18,
+    model = ActionRecResNetV1bCustom(depth=18,
                                nclass=nclass,
                                partial_bn=partial_bn,
                                num_segments=num_segments,
@@ -210,7 +216,7 @@ def resnet34_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
         Freeze all batch normalization layers during training except the first layer.
     """
     modality = kwargs['modality']
-    model = ActionRecResNetV1b(depth=34,
+    model = ActionRecResNetV1bCustom(depth=34,
                                nclass=nclass,
                                partial_bn=partial_bn,
                                num_segments=num_segments,
