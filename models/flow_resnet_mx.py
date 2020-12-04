@@ -51,6 +51,8 @@ class ActionRecResNetV1b(HybridBlock):
         else:
             print('No such ResNet configuration for depth=%d' % (depth))
 
+        self.flow_conv1 = nn.Conv2D(channels=64, kernel_size=7, strides=2,
+                                       padding=3, use_bias=False, in_channel = 20)
         self.dropout_ratio = dropout_ratio
         self.init_std = init_std
         self.feat_dim = 512 * self.expansion
@@ -58,7 +60,11 @@ class ActionRecResNetV1b(HybridBlock):
         self.num_crop = num_crop
 
         with self.name_scope():
-            self.conv1 = pretrained_model.conv1
+            if modality == 'rgb':
+                self.conv1 = pretrained_model.conv1
+            else:
+                self.conv1 = self.flow_conv1
+            
             self.bn1 = pretrained_model.bn1
             self.relu = pretrained_model.relu
             self.maxpool = pretrained_model.maxpool
