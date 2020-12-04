@@ -54,7 +54,7 @@ class ActionRecResNetV1bCustom(HybridBlock):
             print('No such ResNet configuration for depth=%d' % (depth))
 
         self.flow_conv1 = nn.Conv2D(channels=64, kernel_size=7, strides=2,
-                                       padding=3, use_bias=False, in_channel = 20)
+                                       padding=3, use_bias=False, in_channels = 20)
         self.dropout_ratio = dropout_ratio
         self.init_std = init_std
         self.feat_dim = 512 * self.expansion
@@ -177,7 +177,7 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
         from gluoncv.model_zoo.model_store import get_model_file
         if modality == 'tvl1_flow':
             old_params_dict = mx.nd.load(get_model_file('resnet18_v1b_kinetics400', tag=pretrained, root=root))
-            new_params_dict = change_key_names(old_params, in_channels=20)
+            new_params_dict = change_key_names(old_params_dict, in_channels=20)
             model.load_dict(new_params_dict)
         elif modality == 'rgb':
             model.load_parameters(get_model_file('resnet18_v1b_kinetics400',
