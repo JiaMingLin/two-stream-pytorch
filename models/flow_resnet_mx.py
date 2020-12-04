@@ -1,11 +1,12 @@
 import mxnet as mx
 from mxnet import init
+from mxnet import ndarray as nd
+from mxnet.util import is_np_array
 from mxnet.gluon import nn
 from mxnet.gluon.nn import HybridBlock
 from gluoncv.model_zoo.resnetv1b import resnet18_v1b, resnet34_v1b
 import numpy as np
-import collections
-
+from collections import OrderedDict, defaultdict
 __all__ = ['resnet18_v1b_kinetics400',
            'resnet34_v1b_kinetics400']
 
@@ -103,8 +104,67 @@ class ActionRecResNetV1bCustom(HybridBlock):
         x = self.output(x)
         return x
 
+    def load_dict(self, param_dict, ctx=None, allow_missing=False,
+                  ignore_extra=False, cast_dtype=False, dtype_source="current"):
+        """Load parameters from dict
+        Parameters
+        ----------
+        param_dict : dict
+            Dictionary containing model parameters
+        ctx : Context or list of Context
+            Context(s) initialize loaded parameters on.
+        allow_missing : bool, default False
+            Whether to silently skip loading parameters not represented in the file.
+        ignore_extra : bool, default False
+            Whether to silently ignore parameters from the file that are not
+            present in this dict.
+        cast_dtype : bool, default False
+            Cast the data type of the NDArray loaded from the checkpoint to the dtype
+            provided by the Parameter if any
+        dtype_source : str, default 'current'
+            must be in {'current', 'saved'}
+            Only valid if cast_dtype=True, specify the source of the dtype for casting
+            the parameters
+        """
+        if isinstance(param_dict.get('filename'), str):
+            # pass from load_parameters
+            filename = param_dict['filename']
+            param_dict = param_dict['params']
+        else:
+            filename = None
+        params = self.collect_params()
+        error_str = "file: %s" % (filename) if filename else "param_dict"
+        loaded = {k[4:] if k.startswith('arg:') or k.startswith('aux:') else k: v \
+                  for k, v in param_dict.items()}
+
+        if not allow_missing:
+            params_inv = defaultdict(list)
+            for k, v in params.items():
+                params_inv[v].append(k)
+
+            for name, param in params.items():
+                assert any(p in loaded for p in params_inv[param]), \
+                    "Parameter '%s' is missing in '%s', which contains parameters: %s. " \
+                    "Set allow_missing=True to ignore missing parameters."%(
+                        name, error_str, _brief_print_list(loaded.keys()))
+
+        if ctx is None:
+            ctx = _context.current_context()
+        for name in loaded:
+            if not ignore_extra and name not in params:
+                raise ValueError(
+                    "Parameter '%s' loaded from '%s' is not present in Dict, " \
+                    "which contains parameters %s. Set ignore_extra=True to ignore. "%(
+                        name, error_str, _brief_print_list(params.keys())))
+            if name in params:
+                param = loaded[name]
+                if isinstance(param, np.ndarray):
+                    param = np.array(param) if is_np_array() else nd.array(param)
+                params[name]._load_init(param, ctx, cast_dtype=cast_dtype, dtype_source=dtype_source)
+
+
 def change_key_names(old_params, in_channels):
-    new_params = collections.OrderedDict()
+    new_params = OrderedDict()
     layer_count = 0
     allKeyList = old_params.keys()
     for layer_key in allKeyList:
@@ -177,8 +237,8 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
         from gluoncv.model_zoo.model_store import get_model_file
         if modality == 'tvl1_flow':
             old_params_dict = mx.nd.load(get_model_file('resnet18_v1b_kinetics400', tag=pretrained, root=root))
-            new_params_dict = change_key_names(old_params, in_channels=20)
-            model.load_dict(new_params_dict)
+            new_params_dict = change_key_names(old_params_dict, in_channels=20)
+            model.load_dict(new_params_dict, ctx=ctx)
         elif modality == 'rgb':
             model.load_parameters(get_model_file('resnet18_v1b_kinetics400',
                            tag=pretrained, root=root))
