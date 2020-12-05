@@ -499,7 +499,6 @@ def main():
                     outputs = []
                     for _, X in enumerate(data):
                         X = X.reshape((-1,) + X.shape[2:])
-                        print(X.shape)
                         pred = net(X.astype(opt.dtype, copy=False))
                         outputs.append(pred)
                     loss = [L(yhat, y.astype(opt.dtype, copy=False)) for yhat, y in zip(outputs, label)]

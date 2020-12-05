@@ -3,6 +3,7 @@ from mxnet import init
 from mxnet import ndarray as nd
 from mxnet.util import is_np_array
 from mxnet.gluon import nn
+from mxnet.gluon.utils import _brief_print_list
 from mxnet.gluon.nn import HybridBlock
 from gluoncv.model_zoo.resnetv1b import resnet18_v1b, resnet34_v1b
 import numpy as np
@@ -44,6 +45,7 @@ class ActionRecResNetV1bCustom(HybridBlock):
         super(ActionRecResNetV1bCustom, self).__init__()
 
         modality = kwargs['modality']
+        in_channels = kwargs['in_channels']
 
         if depth == 18:
             pretrained_model = resnet18_v1b(pretrained=pretrained_base, **kwargs)
@@ -54,8 +56,6 @@ class ActionRecResNetV1bCustom(HybridBlock):
         else:
             print('No such ResNet configuration for depth=%d' % (depth))
 
-        self.flow_conv1 = nn.Conv2D(channels=64, kernel_size=7, strides=2,
-                                       padding=3, use_bias=False, in_channel = 20)
         self.dropout_ratio = dropout_ratio
         self.init_std = init_std
         self.feat_dim = 512 * self.expansion
@@ -63,11 +63,8 @@ class ActionRecResNetV1bCustom(HybridBlock):
         self.num_crop = num_crop
 
         with self.name_scope():
-            if modality == 'rgb':
-                self.conv1 = pretrained_model.conv1
-            else:
-                self.conv1 = self.flow_conv1
-            
+            self.conv1 = nn.Conv2D(channels=64, kernel_size=7, strides=2,
+                                       padding=3, use_bias=False, in_channels = in_channels)
             self.bn1 = pretrained_model.bn1
             self.relu = pretrained_model.relu
             self.maxpool = pretrained_model.maxpool
@@ -104,8 +101,8 @@ class ActionRecResNetV1bCustom(HybridBlock):
         x = self.output(x)
         return x
 
-    def load_dict(self, param_dict, ctx=None, allow_missing=False,
-                  ignore_extra=False, cast_dtype=False, dtype_source="current"):
+    def load_dict(self, param_dict, ctx=None, allow_missing=True,
+                  ignore_extra=True, cast_dtype=False, dtype_source="current"):
         """Load parameters from dict
         Parameters
         ----------
@@ -223,6 +220,8 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
     """
 
     modality = kwargs['modality']
+
+    in_channels = 3 if modality == 'rgb' else 20
     model = ActionRecResNetV1bCustom(depth=18,
                                nclass=nclass,
                                partial_bn=partial_bn,
@@ -230,7 +229,8 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
                                num_crop=num_crop,
                                dropout_ratio=0.5,
                                init_std=0.01, 
-                               modality = modality)
+                               modality = modality,
+                               in_channels = in_channels)
 
     if pretrained:
 
@@ -246,6 +246,7 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
         from gluoncv.data import Kinetics400Attr
         attrib = Kinetics400Attr()
         model.classes = attrib.classes
+    model.collect_params('actionrecresnetv1bcustom0_conv0_weight').initialize()
     model.collect_params().reset_ctx(ctx)
     return model
 
