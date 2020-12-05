@@ -64,7 +64,9 @@ class ActionRecResNetV1bCustom(HybridBlock):
 
         with self.name_scope():
             self.conv1 = nn.Conv2D(channels=64, kernel_size=7, strides=2,
-                                       padding=3, use_bias=False, in_channels = in_channels)
+                                       padding=3, use_bias=False, in_channels = in_channels,
+                                       weight_initializer=init.Normal(sigma=self.init_std))
+            self.conv1.initialize()
             self.bn1 = pretrained_model.bn1
             self.relu = pretrained_model.relu
             self.maxpool = pretrained_model.maxpool
@@ -235,18 +237,14 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
     if pretrained:
 
         from gluoncv.model_zoo.model_store import get_model_file
+        params_dict = mx.nd.load(get_model_file('resnet18_v1b_kinetics400', tag=pretrained, root=root))
         if modality == 'tvl1_flow':
-            old_params_dict = mx.nd.load(get_model_file('resnet18_v1b_kinetics400', tag=pretrained, root=root))
-            new_params_dict = change_key_names(old_params_dict, in_channels=20)
-            model.load_dict(new_params_dict, ctx=ctx)
-        elif modality == 'rgb':
-            model.load_parameters(get_model_file('resnet18_v1b_kinetics400',
-                           tag=pretrained, root=root))
+            params_dict = change_key_names(params_dict, in_channels=20)
 
+        model.load_dict(params_dict, ctx=ctx)
         from gluoncv.data import Kinetics400Attr
         attrib = Kinetics400Attr()
         model.classes = attrib.classes
-    model.collect_params('actionrecresnetv1bcustom0_conv0_weight').initialize()
     model.collect_params().reset_ctx(ctx)
     return model
 
@@ -287,8 +285,7 @@ def resnet34_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
 
     if pretrained:
         from gluoncv.model_zoo.model_store import get_model_file
-        model.load_parameters(get_model_file('resnet34_v1b_kinetics400',
-                                             tag=pretrained, root=root))
+        model.load_parameters(get_model_file('resnet34_v1b_kinetics400',tag=pretrained, root=root))
         from gluoncv.data import Kinetics400Attr
         attrib = Kinetics400Attr()
         model.classes = attrib.classes
