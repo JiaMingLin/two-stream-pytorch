@@ -45,7 +45,7 @@ parser.add_argument('--epochs', default=250, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=25, type=int,
+parser.add_argument('-b', '--batch-size', default=256,  type=int,
                     metavar='N', help='mini-batch size (default: 50)')
 parser.add_argument('--iter-size', default=5, type=int,
                     metavar='I', help='iter size as in Caffe to reduce memory usage (default: 5)')
@@ -344,7 +344,7 @@ def accuracy(output, target, topk=(1,)):
 
     res = []
     for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0)
+        correct_k = correct[:k].reshape((-1,)).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
 
