@@ -193,7 +193,7 @@ class VideoClsCustom(dataset.Dataset):
                 if self.modality == 'tvl1_flow':
                     clip_input = self._tvl1_flow_TSN_cv2_loader(directory, duration, segment_indices, skip_offsets)
                 elif self.modality == 'lk_flow':
-                    pass
+                    clip_input = self._lk_flow_TSN_loader(directory, duration, segment_indices, skip_offsets)
                 elif self.modality == 'rgb':
                     clip_input = self._image_TSN_cv2_loader(directory, duration, segment_indices, skip_offsets)
 
@@ -353,6 +353,52 @@ class VideoClsCustom(dataset.Dataset):
                     print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
                     sys.exit()
                     # TODO: error handling here
+                if self.new_width > 0 and self.new_height > 0:
+                    cv_img_x = cv2.resize(cv_img_origin_x, (self.new_width, self.new_height), interpolation)
+                    cv_img_y = cv2.resize(cv_img_origin_y, (self.new_width, self.new_height), interpolation)
+                else:
+                    cv_img_x = cv_img_origin_x
+                    cv_img_y = cv_img_origin_y
+
+                of_frame = np.concatenate([np.expand_dims(cv_img_x, 2), np.expand_dims(cv_img_y, 2)], axis = 2)
+                sampled_list.append(of_frame)
+        return sampled_list
+
+    def _lk_flow_TSN_loader(self, directory, duration, indices, skip_offsets, scale='int8'):
+
+        # directory = /optical_flow_dir/action
+        interpolation = self.cv2.INTER_LINEAR
+        cv_read_flag = self.cv2.IMREAD_GRAYSCALE
+
+        action_clip = directory.split('/')[-1]
+        name_pattern = 'flow_%s_%06d.npy'
+
+        sampled_list = []
+        for seg_ind in indices:
+            offset = int(seg_ind)
+
+            for i, _ in enumerate(range(0, self.skip_length, self.new_step)):  # skip_length = new_step * new_length
+                if offset + skip_offsets[i] <= duration:
+                    # full path = tvl1_flow/u/ACTION/frame000112.jpg
+                    frame_name_x = name_pattern % ("x", (offset + i))
+                    # path = tvl1_flow/u/ACTIOM
+                    frame_path_x = os.path.join(directory,frame_name_x)
+                    cv_img_origin_x = np.load(frame_path_x)
+
+                    frame_name_y = name_pattern % ("y", (offset + i))
+                    # path = tvl1_flow/u/ACTIOM
+                    frame_path_y = os.path.join(directory,frame_name_y)
+                    cv_img_origin_y = np.load(frame_path_y)
+
+                if cv_img_origin_y is None or cv_img_origin_x is None:
+                    print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
+                    sys.exit()
+                    # TODO: error handling here
+
+                # if scale == 'uint8':
+                cv_img_origin_x = (cv_img_origin_x.astype(np.int16)+128).astype(np.uint8)
+                cv_img_origin_y = (cv_img_origin_y.astype(np.int16)+128).astype(np.uint8)
+
                 if self.new_width > 0 and self.new_height > 0:
                     cv_img_x = cv2.resize(cv_img_origin_x, (self.new_width, self.new_height), interpolation)
                     cv_img_y = cv2.resize(cv_img_origin_y, (self.new_width, self.new_height), interpolation)
