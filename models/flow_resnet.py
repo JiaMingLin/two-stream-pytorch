@@ -6,8 +6,18 @@ import numpy as np
 
 import torch.utils.model_zoo as model_zoo
 
-__all__ = ['ResNet', 'flow_resnet18', 'flow_resnet34', 'flow_resnet50', 'flow_resnet50_aux', 'flow_resnet101',
-           'flow_resnet152']
+__all__ = [
+    'ResNet', 
+    'flow_resnet18', 
+    'flow_resnet34', 
+    'flow_resnet50', 
+    'flow_resnet50_aux', 
+    'flow_resnet101',
+    'flow_resnet152', 
+    'flow_resnet18_v1b_kinetics400', 
+    'flow_resnet34_v1b_kinetics400', 
+    'flow_resnet101_v1b_kinetics400'
+]
 
 
 model_urls = {
@@ -16,6 +26,9 @@ model_urls = {
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
+    'flow_resnet18_v1b_kinetics400': , 
+    'flow_resnet34_v1b_kinetics400': , 
+    'flow_resnet101_v1b_kinetics400':
 }
 
 
