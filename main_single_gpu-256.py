@@ -120,7 +120,7 @@ def main():
         scale_ratios = [1.0, 0.875, 0.75, 0.66]
         clip_mean = [0.485, 0.456, 0.406] * args.new_length
         clip_std = [0.229, 0.224, 0.225] * args.new_length
-    elif args.modality == "flow":
+    elif args.modality == "tvl1_flow" or args.modality == "LK_flow":
         is_color = False
         scale_ratios = [1.0, 0.875, 0.75]
         clip_mean = [0.5, 0.5] * args.new_length
