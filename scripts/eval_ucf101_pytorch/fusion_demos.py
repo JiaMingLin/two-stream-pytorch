@@ -28,7 +28,7 @@ os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 rgb_clip_root = '/home/jiaming/action_data/ucf101/jpegs_256'
-flow_clip_root = 
+flow_clip_root = '/home/jiaming/action_data/ucf101/ucf101_LK'
 
 
 def softmax(x):
@@ -104,8 +104,9 @@ def main():
     print("\nDetail Prediction:", file = f_re)
     for lineT, lineS in zip(val_Tlist, val_Slist):
         line_info = lineT.split(" ")
-        clip_Tpath = line_info[0]
-        clip_Spath = lineS.split(" ")[0]
+        clip_Tpath = os.path.join(flow_clip_root, line_info[0])
+        clip_Spath = os.path.join(rgb_clip_root, lineS.split(" ")[0])
+        
         input_video_label = int(line_info[1]) - 1
 
         temporal_prediction = VideoTemporalPrediction(
