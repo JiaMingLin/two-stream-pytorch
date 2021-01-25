@@ -27,6 +27,10 @@ from VideoSpatialPrediction import VideoSpatialPrediction
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
+rgb_clip_root = '/home/jiaming/action_data/ucf101/jpegs_256'
+flow_clip_root = 
+
+
 def softmax(x):
     y = [math.exp(k) for k in x]
     sum_y = math.fsum(y)
@@ -44,11 +48,11 @@ def main():
     amountList = [0]*len(idx2class)
     correctList = [0]*len(idx2class)
     
-    report_file = "./fusion_model_256_415/fusion_validation_report.txt"
+    report_file = "./fusion_model_LK256_t2/fusion_validation_report.txt"
     f_re = open(report_file,'w', buffering = 1)
 
-    Tmodel_path = './fusion_model_256_415/temporal.pth.tar'
-    Smodel_path = './fusion_model_256_415/spatial.pth.tar'
+    Tmodel_path = './fusion_model_LK256_t2/temporal.pth.tar'
+    Smodel_path = './fusion_model_LK256_t2/spatial.pth.tar'
     print('temporal_model_path {}'.format(os.path.abspath(Tmodel_path)), file = f_re)
     print('spatial_model_path {}'.format(os.path.abspath(Smodel_path)), file = f_re)
     Tmodel_use = 'flow_mobilenet' #flow_mobilenet, flow_vgg16
@@ -79,8 +83,8 @@ def main():
     print("Action recognition spatial model is loaded in %4.4f seconds." % (model_time))
     print("Action recognition spatial model is loaded in %4.4f seconds." % (model_time), file = f_re)
 
-    Tval_file = "./temporal_testlist01_with_labels.txt"
-    Sval_file = "./spatial_testlist01_with_labels.txt"
+    Tval_file = "../../datasets/settings/ucf101/val_lk_flow_split1.txt"
+    Sval_file = "../../datasets/settings/ucf101/val_rgb_split1.txt"
     print('temporal validation file = {}'.format(os.path.abspath(Tval_file)), file = f_re)
     print('spatial validation file = {}'.format(os.path.abspath(Sval_file)), file = f_re)
     f_Tval = open(Tval_file, "r")
