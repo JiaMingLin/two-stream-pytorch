@@ -34,31 +34,54 @@ def softmax(x):
     return z
 
 def main():
-
-    model_path = '../../checkpoints/model_best.pth.tar'
-    data_dir = "~/UCF101/ucf101_flow_img_tvl1_gpu"
+    idx2class = {}
+    with open ('../../datasets/ucf101_splits/classInd.txt', 'r') as f:
+        for lines in f.readlines():
+            classNo, className = lines.strip('\n').split(' ')
+            idx2class[classNo] = className
+    
+    amountList = [0]*len(idx2class)
+    correctList = [0]*len(idx2class)
+    
+    report_file = "./temporal_validation_report.txt"
+    f_re = open(report_file,'w', buffering = 1)
+    
+    model_path = '../../checkpoints/model_test2_con/model_best.pth.tar'
+    print('model_path {}'.format(os.path.abspath(model_path)), file = f_re)
+    model_use = 'flow_vgg16' #flow_mobilenet, flow_vgg16
+    print('Model backbone: {}'.format(model_use), file = f_re)
+    #data_dir = "~/UCF101/ucf101_flow_img_tvl1_gpu"
+    data_dir = "../../../UCF101/ucf101_flow_img_tvl2_gpu"
     start_frame = 0
     num_categories = 101
 
     model_start_time = time.time()
     params = torch.load(model_path)
-    temporal_net = models.flow_resnet152(pretrained=False, num_classes=101)
+    temporal_net = models.__dict__[model_use](pretrained=False, num_classes=101)
+    #temporal_net = models.flow_vgg16(pretrained=False, num_classes=101)
+    #temporal_net = models.flow_resnet152(pretrained=False, num_classes=101)
     temporal_net.load_state_dict(params['state_dict'])
     temporal_net.cuda()
     temporal_net.eval()
     model_end_time = time.time()
     model_time = model_end_time - model_start_time
     print("Action recognition temporal model is loaded in %4.4f seconds." % (model_time))
+    print("Action recognition temporal model is loaded in %4.4f seconds." % (model_time), file = f_re)
 
     val_file = "./temporal_testlist01_with_labels.txt"
+    print('validation file = {}'.format(os.path.abspath(val_file)), file = f_re)
+    #val_file = "./temporal_testlist02_with_labels.txt"
     f_val = open(val_file, "r")
     val_list = f_val.readlines()
     print("we got %d test videos" % len(val_list))
+    print("we got %d test videos" % len(val_list), file = f_re)
 
     line_id = 1
     match_count = 0
     result_list = []
 
+    print("\nDetail Prediction:\n", file = f_re)
+    
     for line in val_list:
         line_info = line.split(" ")
         clip_path = line_info[0]
@@ -77,15 +100,35 @@ def main():
 
         pred_index = np.argmax(avg_spatial_pred_fc8)
         print("Sample %d/%d: GT: %d, Prediction: %d" % (line_id, len(val_list), input_video_label, pred_index))
-
+        print("Sample %d/%d: GT: %d, Prediction: %d" % (line_id, len(val_list), input_video_label, pred_index), file = f_re)
+        amountList[input_video_label] = amountList[input_video_label] + 1
         if pred_index == input_video_label:
             match_count += 1
+            correctList[input_video_label] = correctList[input_video_label] + 1
         line_id += 1
 
     print(match_count)
     print(len(val_list))
+    print("Accuracy {}/{}".format(match_count, len(val_list)), file = f_re)
     print("Accuracy is %4.4f" % (float(match_count)/len(val_list)))
-    np.save("ucf101_s1_flow_resnet152.npy", np.array(result_list))
+    print("Accuracy is %4.4f" % (float(match_count)/len(val_list)), file = f_re)
+    
+    print("\nPrediction Distribution:\n", file = f_re)
+    for idx in range(len(idx2class)):
+        if ( amountList[idx] !=0 ):
+            print('{:<5} {:<20} {:>8} / {:<8} = {:4.4f}'.format(idx, idx2class[str(idx+1)], correctList[idx], amountList[idx], float(correctList[idx])/amountList[idx]))
+            print('{:<5} {:<20} {:>8} / {:<8} = {:4.4f}'.format(idx, idx2class[str(idx+1)], correctList[idx], amountList[idx], float(correctList[idx])/amountList[idx]), file = f_re)
+        elif ( amountList[idx] == 0 ):
+            print('{:<5} {:<20} {:>8} / {:<8} = {:4.4f}'.format(idx, idx2class[str(idx+1)], correctList[idx], amountList[idx], 0))
+            print('{:<5} {:<20} {:>8} / {:<8} = {:4.4f}'.format(idx, idx2class[str(idx+1)], correctList[idx], amountList[idx], 0), file = f_re)
+    
+    np.savez('ucf101_{}_model_result.npz'.format(model_use), correctList=np.array(correctList), amountList=np.array(amountList), resultList=np.array(result_list))
+
+    
+    #np.save("ucf101_s1_flow_resnet152.npy", np.array(result_list))
+    #np.save("ucf101_flow_vgg16_model_test2_result.npy", np.array(result_list))
+    #np.save("ucf101_flow_vgg16_model_test2_correctByClass.npy", np.array(result_list))
+    f_re.close()
 
 if __name__ == "__main__":
     main()

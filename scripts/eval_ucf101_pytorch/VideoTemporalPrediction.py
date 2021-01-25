@@ -52,16 +52,20 @@ def VideoTemporalPrediction(
 
     # selection
     step = int(math.floor((duration-optical_flow_frames+1)/num_samples))
-    dims = (256,340,optical_flow_frames*2,num_samples)
+    #dims = (256,340,optical_flow_frames*2,num_samples)
+    dims = (272,360,optical_flow_frames*2,num_samples)
     flow = np.zeros(shape=dims, dtype=np.float64)
     flow_flip = np.zeros(shape=dims, dtype=np.float64)
 
     for i in range(num_samples):
         for j in range(optical_flow_frames):
-            flow_x_file = os.path.join(vid_name, 'flow_x_{0:04d}.jpg'.format(i*step+j+1 + start_frame))
-            flow_y_file = os.path.join(vid_name, 'flow_y_{0:04d}.jpg'.format(i*step+j+1 + start_frame))
+            #flow_x_file = os.path.join(vid_name, 'flow_x_{0:04d}.jpg'.format(i*step+j+1 + start_frame))
+            flow_x_file = os.path.join(vid_name, 'flow_x_{0:05d}.jpg'.format(i*step+j+1 + start_frame))
+            #flow_y_file = os.path.join(vid_name, 'flow_y_{0:04d}.jpg'.format(i*step+j+1 + start_frame))
+            flow_y_file = os.path.join(vid_name, 'flow_y_{0:05d}.jpg'.format(i*step+j+1 + start_frame))
             img_x = cv2.imread(flow_x_file, cv2.IMREAD_GRAYSCALE)
             img_y = cv2.imread(flow_y_file, cv2.IMREAD_GRAYSCALE)
+
             img_x = cv2.resize(img_x, dims[1::-1])
             img_y = cv2.resize(img_y, dims[1::-1])
 
@@ -72,16 +76,18 @@ def VideoTemporalPrediction(
             flow_flip[:,:,j*2+1,i] = img_y[:, ::-1]
 
     # crop
-    flow_1 = flow[:224, :224, :,:]
-    flow_2 = flow[:224, -224:, :,:]
-    flow_3 = flow[16:240, 60:284, :,:]
-    flow_4 = flow[-224:, :224, :,:]
-    flow_5 = flow[-224:, -224:, :,:]
-    flow_f_1 = flow_flip[:224, :224, :,:]
-    flow_f_2 = flow_flip[:224, -224:, :,:]
-    flow_f_3 = flow_flip[16:240, 60:284, :,:]
-    flow_f_4 = flow_flip[-224:, :224, :,:]
-    flow_f_5 = flow_flip[-224:, -224:, :,:]
+    flow_1 = flow[:256, :256, :,:]
+    flow_2 = flow[:256, -256:, :,:]
+    flow_3 = flow[8:264, 52:308, :,:]
+    flow_4 = flow[-256:, :256, :,:]
+    flow_5 = flow[-256:, -256:, :,:]
+    flow_f_1 = flow_flip[:256, :256, :,:]
+    flow_f_2 = flow_flip[:256, -256:, :,:]
+    flow_f_3 = flow_flip[8:264, 52:308, :,:]
+    flow_f_4 = flow_flip[-256:, :256, :,:]
+    flow_f_5 = flow_flip[-256:, -256:, :,:]
+    
+   # print(flow_1.shape,flow_2.shape,flow_3.shape,flow_4.shape,flow_5.shape,flow_f_1.shape,flow_f_2.shape,flow_f_3.shape,flow_f_4.shape,flow_f_5.shape)
 
     flow = np.concatenate((flow_1,flow_2,flow_3,flow_4,flow_5,flow_f_1,flow_f_2,flow_f_3,flow_f_4,flow_f_5), axis=3)
     
@@ -94,7 +100,7 @@ def VideoTemporalPrediction(
         
     flow_np = np.concatenate(flow_list,axis=0)
 
-    batch_size = 25
+    batch_size = 45 #25
     prediction = np.zeros((num_categories,flow.shape[3]))
     num_batches = int(math.ceil(float(flow.shape[3])/batch_size))
 
