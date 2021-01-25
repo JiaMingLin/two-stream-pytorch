@@ -59,7 +59,7 @@ def ReadSegmentRGB(path, offsets, new_height, new_width, new_length, is_color, n
     clip_input = np.concatenate(sampled_list, axis=2)
     return clip_input
 
-def ReadSegmentFlow(path, offsets, new_height, new_width, new_length, is_color, name_pattern):
+def ReadSegment_tvl1_Flow(path, offsets, new_height, new_width, new_length, is_color, name_pattern):
     if is_color:
         cv_read_flag = cv2.IMREAD_COLOR         # > 0
     else:
@@ -84,6 +84,48 @@ def ReadSegmentFlow(path, offsets, new_height, new_width, new_length, is_color, 
             frame_name_y = name_pattern % (length_id + offset)
             frame_path_y = path_pattern % ("v") + "/" + frame_name_y
             cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
+
+            if cv_img_origin_x is None or cv_img_origin_y is None:
+               print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
+               sys.exit()
+               # TODO: error handling here
+            if new_width > 0 and new_height > 0:
+                cv_img_x = cv2.resize(cv_img_origin_x, (new_width, new_height), interpolation)
+                cv_img_y = cv2.resize(cv_img_origin_y, (new_width, new_height), interpolation)
+            else:
+                cv_img_x = cv_img_origin_x
+                cv_img_y = cv_img_origin_y
+            sampled_list.append(np.expand_dims(cv_img_x, 2))
+            sampled_list.append(np.expand_dims(cv_img_y, 2))
+
+    clip_input = np.concatenate(sampled_list, axis=2)
+    return clip_input
+
+def ReadSegment_LK_Flow(path, offsets, new_height, new_width, new_length, is_color, name_pattern):
+    if is_color:
+        cv_read_flag = cv2.IMREAD_COLOR         # > 0
+    else:
+        cv_read_flag = cv2.IMREAD_GRAYSCALE     # = 0
+    interpolation = cv2.INTER_LINEAR
+
+    action_clip = path.split('/')[-1]
+    name_pattern = 'flow_%s_%06d.npy'
+
+    sampled_list = []
+    for offset_id in range(len(offsets)):
+        offset = offsets[offset_id]
+        for length_id in range(1, new_length+1):
+            # full path = tvl1_flow/u/ACTION/frame000112.jpg
+            frame_name_x = name_pattern % ("x", (length_id + offset))
+            # path = tvl1_flow/u/ACTIOM
+            frame_path_x = os.path.join(path,frame_name_x)
+            cv_img_origin_x = cv2.imread(frame_path_x)
+
+
+            frame_name_y = name_pattern % ("y", (length_id + offset))
+            # path = tvl1_flow/u/ACTIOM
+            frame_path_y = os.path.join(path,frame_name_y)
+            cv_img_origin_y = cv2.imread(frame_path_y)
 
             if cv_img_origin_x is None or cv_img_origin_y is None:
                print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
@@ -183,8 +225,17 @@ class ucf101(data.Dataset):
                                         self.is_color,
                                         self.name_pattern
                                         )
-        elif self.modality == "flow":
-            clip_input = ReadSegmentFlow(path,
+        elif self.modality == "LK_flow":
+            clip_input = ReadSegment_LK_Flow(path,
+                                        offsets,
+                                        self.new_height,
+                                        self.new_width,
+                                        self.new_length,
+                                        self.is_color,
+                                        self.name_pattern
+                                        )
+        elif self.modality == 'tvl1_flow':
+            clip_input = ReadSegment_TVL1_Flow(path,
                                         offsets,
                                         self.new_height,
                                         self.new_width,
