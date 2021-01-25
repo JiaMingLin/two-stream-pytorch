@@ -12,6 +12,7 @@ from mxboard import SummaryWriter
 from mxnet.contrib import amp
 
 from datasets.video_common.classification import VideoClsCustom
+from datasets.video_common.transformation import CustomizedTrainTransformation, CustomizedValTransformation
 from datasets.gluoncv_ucf101 import UCF101
 
 from gluoncv.data.transforms import video
@@ -215,6 +216,14 @@ def get_data_loader(opt, batch_size, num_workers, logger, kvstore=None):
                                                            mean=default_mean, std=default_std)
         transform_test = video.VideoGroupValTransformV2(crop_size=(input_size, input_size), short_side=opt.new_height,
                                                         mean=default_mean, std=default_std)
+
+    elif opt.data_aug == 'v5':
+        transform_train = CustomizedTrainTransformation(size=(input_size, input_size), scale_ratios=scale_ratios,
+                                                         more_fix_crop=opt.more_fix_crop, max_distort=opt.max_distort,
+                                                         mean=default_mean, std=default_std)
+        transform_test = CustomizedValTransformation(size=input_size,
+                                                      mean=default_mean, std=default_std)     
+
     else:
         logger.info('Data augmentation %s is not supported yet.' % (opt.data_aug))
 
