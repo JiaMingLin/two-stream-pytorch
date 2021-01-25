@@ -27,7 +27,7 @@ parser.add_argument('data', metavar='DIR', default='/home/jiaming/action_data/uc
 parser.add_argument('--settings', metavar='DIR', default='./datasets/settings',
                     help='path to datset setting files')
 parser.add_argument('--modality', '-m', metavar='MODALITY', default='rgb',
-                    choices=["rgb", "flow"],
+                    choices=["rgb", "tvl1_flow", "LK_flow"],
                     help='modality: rgb | flow')
 parser.add_argument('--dataset', '-d', default='ucf101',
                     choices=["ucf101", "hmdb51"],
