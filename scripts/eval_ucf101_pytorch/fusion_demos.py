@@ -106,8 +106,8 @@ def main():
         line_info = lineT.split(" ")
         clip_Tpath = os.path.join(flow_clip_root, line_info[0])
         clip_Spath = os.path.join(rgb_clip_root, lineS.split(" ")[0])
-        
-        input_video_label = int(line_info[1]) - 1
+
+        input_video_label = int(line_info[2])
 
         temporal_prediction = VideoTemporalPrediction(
                 clip_Tpath,

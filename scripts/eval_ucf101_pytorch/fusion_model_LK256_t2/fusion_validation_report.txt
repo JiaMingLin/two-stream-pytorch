@@ -2,3 +2,23 @@ temporal_model_path /home/jiaming/Git/two-stream-pytorch/scripts/eval_ucf101_pyt
 spatial_model_path /home/jiaming/Git/two-stream-pytorch/scripts/eval_ucf101_pytorch/fusion_model_LK256_t2/spatial.pth.tar
 Temporal model backbone: flow_mobilenet
 Spatial model backbone: rgb_mobilenet
+Action recognition temporal model is loaded in 4.5289 seconds.
+Action recognition spatial model is loaded in 0.1322 seconds.
+temporal validation file = /home/jiaming/Git/two-stream-pytorch/datasets/settings/ucf101/val_lk_flow_split1.txt
+spatial validation file = /home/jiaming/Git/two-stream-pytorch/datasets/settings/ucf101/val_rgb_split1.txt
+we got 7566 test videos
+
+Detail Prediction:
+Sample 1/7566: GT: 0, Spatial Prediction: 33, Temporal Prediction: 13, Fusion Prediction: 33
+Sample 2/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 13, Fusion Prediction: 1
+Sample 3/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 33, Fusion Prediction: 0
+Sample 4/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 1, Fusion Prediction: 1
+Sample 5/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 1, Fusion Prediction: 0
+Sample 6/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 33, Fusion Prediction: 1
+Sample 7/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 12, Fusion Prediction: 0
+Sample 8/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 12, Fusion Prediction: 0
+Sample 9/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 12, Fusion Prediction: 0
+Sample 10/7566: GT: 0, Spatial Prediction: 12, Temporal Prediction: 13, Fusion Prediction: 13
+Sample 11/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 19, Fusion Prediction: 0
+Sample 12/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 19, Fusion Prediction: 0
+Sample 13/7566: GT: 0, Spatial Prediction: 0, Temporal Prediction: 1, Fusion Prediction: 0
