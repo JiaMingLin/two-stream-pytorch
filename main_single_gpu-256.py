@@ -15,48 +15,6 @@ import video_transforms
 import models
 import datasets
 
-class Net(nn.Module):
-    def __init__(self, mnist=False):    
-        super(Net, self).__init__()
-        if mnist:
-            num_channels = 1
-        else:
-            num_channels = 3         
-        self.conv1 = nn.Conv2d(num_channels, 32, 3, 1, padding=1, bias= False)
-        self.maxpooling1 = nn.MaxPool2d(2,2)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1,padding=1, bias= False)
-        self.maxpooling2 = nn.MaxPool2d(2,2)
-        self.conv3 = nn.Conv2d(64, 64, 3, 1,padding=1,bias= False)
-        self.maxpooling3 = nn.MaxPool2d(2,2)
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.maxpooling4 = nn.MaxPool2d(2,2)
-        self.conv5 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.maxpooling5 = nn.MaxPool2d(2,2)             
-        self.fc1 = nn.Linear(8*8*64, 512,bias= False)
-        self.fc2 = nn.Linear(512, 101,bias= False)        
-    def forward(self, x):        
-        x = self.conv1(x)
-        x = self.maxpooling1(x)
-        x = self.conv2(x)
-        x = self.maxpooling2(x)
-        x = self.conv3(x)
-        x = self.maxpooling3(x)
-        x = self.conv4(x)
-        x = self.maxpooling4(x)
-        x = self.conv5(x)
-        x = self.maxpooling5(x)
-
-        #print (x.size())
-        #x = self.dp(x)
-        x = x.view(-1, 8*8*64)
-        #print(x.size())
-        x = self.fc1(x)
-        x = self.fc2(x)
-
-        return x
-
-
-
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
     and callable(models.__dict__[name]))
@@ -111,6 +69,8 @@ parser.add_argument('--save-freq', default=25, type=int,
                     metavar='N', help='save frequency (default: 25)')
 parser.add_argument('--resume', default='./checkpoints', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
+parser.add_argument('--save-path', default='./checkpoints', type=str, metavar='PATH',
+                    help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
 
@@ -125,14 +85,14 @@ args = parser.parse_args('/home/jiaming/action_data/ucf101/jpegs_256 -m rgb -a r
 args = parser.parse_args()
 
 
-if not os.path.exists(args.resume):
-    os.makedirs(args.resume)
+if not os.path.exists(args.save_path):
+    os.makedirs(args.save_path)
 
-logFile = args.resume+'/log.txt'
+logFile = args.save_path+'/log.txt'
 f_log = open(logFile, 'w', buffering = 1)
 print(sys.argv, file = f_log)
-print("Saving everything to directory %s." % (args.resume))
-print("Saving everything to directory %s." % (args.resume), file = f_log)
+print("Saving everything to directory %s." % (args.save_path))
+print("Saving everything to directory %s." % (args.save_path), file = f_log)
 
 
 def main():
@@ -141,7 +101,7 @@ def main():
     # create model
     print("Building model ... ")
     print("Building model ... ", file = f_log)
-    model = build_model()
+    model = build_model(resume_path = args.resume)
     print("Model %s is loaded. " % (args.arch))
     print("Model %s is loaded. " % (args.arch), file = f_log)
 
@@ -258,19 +218,20 @@ def main():
                 'state_dict': model.state_dict(),
                 'best_prec1': best_prec1,
                 'optimizer' : optimizer.state_dict(),
-            }, is_best, checkpoint_name, args.resume)
+            }, is_best, checkpoint_name, args.save_path)
 
-def build_model():
+def build_model(resume_path = None):
     #Load pretrained model
-    model = models.__dict__[args.arch](pretrained=False, num_classes=101)
-
+    if resume_path is None:
+        model = models.__dict__[args.arch](pretrained=True, num_classes=101)
+    else:
     #Load saved model
-    #model = models.__dict__[args.arch](pretrained=False, num_classes=101)
-    #model_path = './checkpoints/rgbM_256/model_best.pth.tar'
-    #params = torch.load(model_path) 
-    #model.load_state_dict(params['state_dict'])
-    #print('Load model: {}'.format(model_path))
-    #print('Load model: {}'.format(model_path), file = f_log )
+        model = models.__dict__[args.arch](pretrained=False, num_classes=101)
+        model_path = resume_path
+        params = torch.load(model_path) 
+        model.load_state_dict(params['state_dict'])
+        print('Load model: {}'.format(model_path))
+        print('Load model: {}'.format(model_path), file = f_log )
     
     model.cuda()
     return model
