@@ -56,7 +56,7 @@ def VideoSpatialPrediction(
     rgb_flip = np.zeros(shape=dims, dtype=np.float64)
 
     for i in range(num_samples):
-        img_file = os.path.join(vid_name, 'img_{0:05d}.jpg'.format(i*step+1))
+        img_file = os.path.join(vid_name, 'frame{0:06d}.jpg'.format(i*step+1))
         #img_file = os.path.join(vid_name, 'image_{0:04d}.jpg'.format(i*step+1))
         #img_file = os.path.join(vid_name, 'frame{0:05d}.jpg'.format(i*step+1))
         img = cv2.imread(img_file, cv2.IMREAD_UNCHANGED)
