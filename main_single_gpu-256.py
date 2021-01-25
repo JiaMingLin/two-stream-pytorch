@@ -27,7 +27,7 @@ parser.add_argument('data', metavar='DIR', default='/home/jiaming/action_data/uc
 parser.add_argument('--settings', metavar='DIR', default='./datasets/settings',
                     help='path to datset setting files')
 parser.add_argument('--modality', '-m', metavar='MODALITY', default='rgb',
-                    choices=["rgb", "tvl1_flow", "LK_flow"],
+                    choices=["rgb", "tvl1_flow", "lk_flow"],
                     help='modality: rgb | flow')
 parser.add_argument('--dataset', '-d', default='ucf101',
                     choices=["ucf101", "hmdb51"],
@@ -120,7 +120,7 @@ def main():
         scale_ratios = [1.0, 0.875, 0.75, 0.66]
         clip_mean = [0.485, 0.456, 0.406] * args.new_length
         clip_std = [0.229, 0.224, 0.225] * args.new_length
-    elif args.modality == "tvl1_flow" or args.modality == "LK_flow":
+    elif args.modality == "tvl1_flow" or args.modality == "lk_flow":
         is_color = False
         scale_ratios = [1.0, 0.875, 0.75]
         clip_mean = [0.5, 0.5] * args.new_length
