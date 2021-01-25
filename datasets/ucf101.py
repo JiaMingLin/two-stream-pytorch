@@ -102,6 +102,7 @@ def ReadSegment_tvl1_Flow(path, offsets, new_height, new_width, new_length, is_c
     return clip_input
 
 def ReadSegment_LK_Flow(path, offsets, new_height, new_width, new_length, is_color, name_pattern):
+    is_color = False
     if is_color:
         cv_read_flag = cv2.IMREAD_COLOR         # > 0
     else:
@@ -118,13 +119,13 @@ def ReadSegment_LK_Flow(path, offsets, new_height, new_width, new_length, is_col
             frame_name_x = name_pattern % ("x", (length_id + offset))
             # path = tvl1_flow/u/ACTIOM
             frame_path_x = os.path.join(path,frame_name_x)
-            cv_img_origin_x = cv2.imread(frame_path_x)
+            cv_img_origin_x = cv2.imread(frame_path_x, cv_read_flag)
 
 
             frame_name_y = name_pattern % ("y", (length_id + offset))
             # path = tvl1_flow/u/ACTIOM
             frame_path_y = os.path.join(path,frame_name_y)
-            cv_img_origin_y = cv2.imread(frame_path_y)
+            cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
 
             if cv_img_origin_x is None or cv_img_origin_y is None:
                print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
