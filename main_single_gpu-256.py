@@ -51,6 +51,8 @@ parser.add_argument('--iter-size', default=5, type=int,
                     metavar='I', help='iter size as in Caffe to reduce memory usage (default: 5)')
 parser.add_argument('--new_length', default=1, type=int,
                     metavar='N', help='length of sampled video frames (default: 1)')
+parser.add_argument('--gpu', default=0, type=int,
+                    metavar='N', help='executing GPU number')
 parser.add_argument('--new_width', default=340, type=int,
                     metavar='N', help='resize width (default: 340)')
 parser.add_argument('--new_height', default=256, type=int,
@@ -74,15 +76,15 @@ parser.add_argument('--save-path', default='./checkpoints', type=str, metavar='P
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
 
-best_prec1 = 0
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
-
 global args
 
 args = parser.parse_args('/home/jiaming/action_data/ucf101/jpegs_256 -m rgb -a rgb_mobilenet --settings ./datasets/settings --new_length 1 --epochs 300 --lr 0.01 --lr_steps 200 250 --batch-size 28 --resume ./checkpoints/test'.split())
 #args = parser.parse_args('./datasets/UCF101_test_withLK -m flow -a flow_mobilenet --settings ./datasets/settings --new_length 10 --epochs 300 --lr 0.01 --lr_steps 200 250 --batch-size 50 --resume ./checkpoints/test'.split())
 args = parser.parse_args()
+
+best_prec1 = 0
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
+os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
 
 
 if not os.path.exists(args.save_path):
