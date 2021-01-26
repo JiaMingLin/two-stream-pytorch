@@ -110,7 +110,6 @@ def ReadSegment_LK_Flow(path, offsets, new_height, new_width, new_length, is_col
     interpolation = cv2.INTER_LINEAR
 
     action_clip = path.split('/')[-1]
-    name_pattern = 'flow_%s_%06d.npy'
 
     sampled_list = []
     for offset_id in range(len(offsets)):
@@ -186,6 +185,8 @@ class ucf101(data.Dataset):
             elif self.modality == "flow":
                 self.name_pattern = "frame%06d.jpg"
                 # self.name_pattern = "flow_%s_%05d.jpg"
+            elif self.modality == 'lk_flow':
+                self.name_pattern = 'flow_%s_%06d.jpg'
 
         self.is_color = is_color
         self.num_segments = num_segments
@@ -226,7 +227,7 @@ class ucf101(data.Dataset):
                                         self.is_color,
                                         self.name_pattern
                                         )
-        elif self.modality == "LK_flow":
+        elif self.modality == "lk_flow":
             clip_input = ReadSegment_LK_Flow(path,
                                         offsets,
                                         self.new_height,

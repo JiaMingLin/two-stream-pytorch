@@ -371,7 +371,7 @@ class VideoClsCustom(dataset.Dataset):
         cv_read_flag = self.cv2.IMREAD_GRAYSCALE
 
         action_clip = directory.split('/')[-1]
-        name_pattern = 'flow_%s_%06d.npy'
+        name_pattern = 'flow_%s_%06d.jpg'
 
         sampled_list = []
         for seg_ind in indices:
@@ -383,21 +383,23 @@ class VideoClsCustom(dataset.Dataset):
                     frame_name_x = name_pattern % ("x", (offset + i))
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_x = os.path.join(directory,frame_name_x)
-                    cv_img_origin_x = np.load(frame_path_x)
+                    cv_img_origin_x = self.cv2.imread(frame_path_x)
 
                     frame_name_y = name_pattern % ("y", (offset + i))
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_y = os.path.join(directory,frame_name_y)
-                    cv_img_origin_y = np.load(frame_path_y)
+                    cv_img_origin_y = self.cv2.imread(frame_path_y)
 
                 if cv_img_origin_y is None or cv_img_origin_x is None:
                     print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
                     sys.exit()
                     # TODO: error handling here
 
+                cv_img_origin_x = cv_img_origin_x[:,:,0]
+                cv_img_origin_y = cv_img_origin_y[:,:,0]
                 # if scale == 'uint8':
-                cv_img_origin_x = (cv_img_origin_x.astype(np.int16)+128).astype(np.uint8)
-                cv_img_origin_y = (cv_img_origin_y.astype(np.int16)+128).astype(np.uint8)
+                # cv_img_origin_x = (cv_img_origin_x.astype(np.int16)+128).astype(np.uint8)
+                # cv_img_origin_y = (cv_img_origin_y.astype(np.int16)+128).astype(np.uint8)
 
                 if self.new_width > 0 and self.new_height > 0:
                     cv_img_x = cv2.resize(cv_img_origin_x, (self.new_width, self.new_height), interpolation)
