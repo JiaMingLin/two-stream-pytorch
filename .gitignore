@@ -1,6 +1,6 @@
 params/*
 checkpoints/*
-#checkpoint/*
+checkpoint/*
 *.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
