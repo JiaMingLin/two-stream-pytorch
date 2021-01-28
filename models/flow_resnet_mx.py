@@ -9,7 +9,8 @@ from gluoncv.model_zoo.resnetv1b import resnet18_v1b, resnet34_v1b
 import numpy as np
 from collections import OrderedDict, defaultdict
 __all__ = ['resnet18_v1b_kinetics400',
-           'resnet34_v1b_kinetics400']
+           'resnet34_v1b_kinetics400',
+           'resnet18_v1']
 
 class ActionRecResNetV1bCustom(HybridBlock):
     r"""ResNet models for video action recognition
@@ -194,10 +195,11 @@ net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained,
                     bn_frozen=opt.freeze_bn)
 """
 
-def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
+def generate_models(model_name, nclass=400, pretrained=False, pretrained_base=True,
                              use_tsn=False, partial_bn=False,
                              num_segments=1, num_crop=1, root='~/.mxnet/models',
                              ctx=mx.cpu(), **kwargs):
+
     r"""ResNet18 model trained on Kinetics400 dataset.
     Parameters
     ----------
@@ -220,7 +222,6 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
     partial_bn : bool, default False.
         Freeze all batch normalization layers during training except the first layer.
     """
-
     modality = kwargs['modality']
 
     in_channels = 3 if modality == 'rgb' else 20
@@ -248,46 +249,33 @@ def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
     model.collect_params().reset_ctx(ctx)
     return model
 
+def resnet18_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
+                             use_tsn=False, partial_bn=False,
+                             num_segments=1, num_crop=1, root='~/.mxnet/models',
+                             ctx=mx.cpu(), **kwargs):
+    
+
+    return generate_models('resnet18_v1b_kinetics400', nclass=nclass, pretrained=pretrained, pretrained_base=pretrained_base,
+                             use_tsn=use_tsn, partial_bn=partial_bn,
+                             num_segments=num_segments, num_crop=num_crop, root=root,
+                             ctx=ctx, **kwargs)
+
 def resnet34_v1b_kinetics400(nclass=400, pretrained=False, pretrained_base=True,
                              use_tsn=False, partial_bn=False,
                              num_segments=1, num_crop=1, root='~/.mxnet/models',
                              ctx=mx.cpu(), **kwargs):
-    r"""ResNet34 model trained on Kinetics400 dataset.
-    Parameters
-    ----------
-    nclass : int.
-        Number of categories in the dataset.
-    pretrained : bool or str.
-        Boolean value controls whether to load the default pretrained weights for model.
-        String value represents the hashtag for a certain version of pretrained weights.
-    pretrained_base : bool or str, optional, default is True.
-        Load pretrained base network, the extra layers are randomized. Note that
-        if pretrained is `True`, this has no effect.
-    ctx : Context, default CPU.
-        The context in which to load the pretrained weights.
-    root : str, default $MXNET_HOME/models
-        Location for keeping the model parameters.
-    num_segments : int, default is 1.
-        Number of segments used to evenly divide a video.
-    num_crop : int, default is 1.
-        Number of crops used during evaluation, choices are 1, 3 or 10.
-    partial_bn : bool, default False.
-        Freeze all batch normalization layers during training except the first layer.
-    """
-    modality = kwargs['modality']
-    model = ActionRecResNetV1bCustom(depth=34,
-                               nclass=nclass,
-                               partial_bn=partial_bn,
-                               num_segments=num_segments,
-                               num_crop=num_crop,
-                               dropout_ratio=0.5,
-                               init_std=0.01)
 
-    if pretrained:
-        from gluoncv.model_zoo.model_store import get_model_file
-        model.load_parameters(get_model_file('resnet34_v1b_kinetics400',tag=pretrained, root=root))
-        from gluoncv.data import Kinetics400Attr
-        attrib = Kinetics400Attr()
-        model.classes = attrib.classes
-    model.collect_params().reset_ctx(ctx)
-    return model
+    return generate_models('resnet34_v1b_kinetics400', nclass=nclass, pretrained=pretrained, pretrained_base=pretrained_base,
+                             use_tsn=use_tsn, partial_bn=partial_bn,
+                             num_segments=num_segments, num_crop=num_crop, root=root,
+                             ctx=ctx, **kwargs)
+
+
+def resnet18_v1(nclass=400, pretrained=False, pretrained_base=True,
+                             use_tsn=False, partial_bn=False,
+                             num_segments=1, num_crop=1, root='~/.mxnet/models',
+                             ctx=mx.cpu(), **kwargs):
+    return generate_models('resnet18_v1', nclass=nclass, pretrained=pretrained, pretrained_base=pretrained_base,
+                             use_tsn=use_tsn, partial_bn=partial_bn,
+                             num_segments=num_segments, num_crop=num_crop, root=root,
+                             ctx=ctx, **kwargs)
