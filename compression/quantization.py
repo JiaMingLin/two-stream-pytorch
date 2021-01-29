@@ -30,11 +30,11 @@ from ptq_lapq import image_classifier_ptq_lapq
 # Logger handle
 msglogger = logging.getLogger()
 
-model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+# model_names = sorted(name for name in models.__dict__
+#     if name.islower() and not name.startswith("__")
+#     and callable(models.__dict__[name]))
 
-dataset_names = sorted(name for name in datasets.__all__)
+# dataset_names = sorted(name for name in datasets.__all__)
 
 # parser = argparse.ArgumentParser(description='PyTorch Two-Stream Action Recognition')
 # parser.add_argument('data', metavar='DIR', default='/home/jiaming/action_data/ucf101/jpegs_256',
