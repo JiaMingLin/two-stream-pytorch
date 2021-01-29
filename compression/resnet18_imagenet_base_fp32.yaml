@@ -1,0 +1,15 @@
+lr_schedulers:
+  training_lr:
+    class: MultiStepLR
+    milestones: [30, 60, 90, 100]
+    gamma: 0.1
+
+policies:
+    - lr_scheduler:
+        instance_name: training_lr
+      starting_epoch: 0
+      ending_epoch: 200
+      frequency: 1
+
+
+#python compress_classifier.py --arch resnet18 ~/action_data/imagenet -p=50 --epochs=110 --compress=script/preact_resnet18_imagenet_base_fp32.yaml -j 8 --lr 0.0002 --wd 0.0001 --vs 0
