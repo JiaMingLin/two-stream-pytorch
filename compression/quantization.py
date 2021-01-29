@@ -25,7 +25,7 @@ import distiller.apputils as apputils
 import parser
 import os
 import numpy as np
-from compression.ptq_lapq import image_classifier_ptq_lapq
+from ptq_lapq import image_classifier_ptq_lapq
 
 # Logger handle
 msglogger = logging.getLogger()
