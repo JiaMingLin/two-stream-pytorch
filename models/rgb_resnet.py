@@ -3,6 +3,10 @@ import torch
 import math
 import torch.utils.model_zoo as model_zoo
 
+from collections import OrderedDict
+
+from distiller.modules import EltwiseAdd
+
 
 __all__ = ['ResNet', 'rgb_resnet18', 'rgb_resnet34', 'rgb_resnet50', 'rgb_resnet50_aux', 'rgb_resnet101',
            'rgb_resnet152']
@@ -93,6 +97,47 @@ class Bottleneck(nn.Module):
 
         return out
 
+class DistillerBasicBlock(BasicBlock):
+    def __init__(self, *args, **kwargs):
+        # Initialize torchvision version
+        super(DistillerBasicBlock, self).__init__(*args, **kwargs)
+
+        # Remove original relu in favor of numbered modules
+        delattr(self, 'relu')
+        self.relu1 = nn.ReLU(inplace=True)
+        self.relu2 = nn.ReLU(inplace=True)
+        self.add = EltwiseAdd(inplace=True)  # Replace '+=' operator with inplace module
+
+        # Trick to make the modules accessible in their topological order
+        modules = OrderedDict()
+        modules['conv1'] = self.conv1
+        modules['bn1'] = self.bn1
+        modules['relu1'] = self.relu1
+        modules['conv2'] = self.conv2
+        modules['bn2'] = self.bn2
+        if self.downsample is not None:
+            modules['downsample'] = self.downsample
+        modules['add'] = self.add
+        modules['relu2'] = self.relu2
+        self._modules = modules
+
+    def forward(self, x):
+        identity = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu1(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out = self.add(out, identity)
+        out = self.relu2(out)
+
+        return out
 
 class ResNet(nn.Module):
 
@@ -162,47 +207,38 @@ class ResNet(nn.Module):
 
         return x
 
+def _resnet(model_name, block, layers, pretrained=False, **kwargs):
+
+    model = ResNet(block, layers, **kwargs)
+    if pretrained:
+        # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+        pretrained_dict = model_zoo.load_url(model_urls[model_name])
+
+        model_dict = model.state_dict()
+
+        # 1. filter out unnecessary keys
+        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        # 2. overwrite entries in the existing state dict
+        model_dict.update(pretrained_dict) 
+        # 3. load the new state dict
+        model.load_state_dict(model_dict)
+    return model
+
 
 def rgb_resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    if pretrained:
-        # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
-        pretrained_dict = model_zoo.load_url(model_urls['resnet18'])
-
-        model_dict = model.state_dict()
-
-        # 1. filter out unnecessary keys
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        # 2. overwrite entries in the existing state dict
-        model_dict.update(pretrained_dict) 
-        # 3. load the new state dict
-        model.load_state_dict(model_dict)
-    return model
+    _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], pretrained, **kwargs)
 
 
 def rgb_resnet34(pretrained=False, **kwargs):
-    """Constructs a ResNet-34 model.
+    """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
-        pretrained_dict = model_zoo.load_url(model_urls['resnet34'])
-
-        model_dict = model.state_dict()
-
-        # 1. filter out unnecessary keys
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        # 2. overwrite entries in the existing state dict
-        model_dict.update(pretrained_dict) 
-        # 3. load the new state dict
-        model.load_state_dict(model_dict)
-    return model
+    _resnet('resnet34', DistillerBasicBlock, [3, 4, 6, 3], pretrained, **kwargs)
 
 
 def rgb_resnet50(pretrained=False, **kwargs):
