@@ -35,9 +35,15 @@ import distiller
 import distiller.apputils as apputils
 from distiller.data_loggers import *
 import distiller.quantization as quantization
-import distiller.models as models
-from distiller.models import create_model
+# import distiller.models as models
+# from distiller.models import create_model
 from distiller.utils import float_range_argparse_checker as float_range
+# import sys
+# sys.path.insert(0,'../')
+
+import video_transforms, datasets
+import models
+from create_model import  create_model
 
 # Logger handle
 msglogger = logging.getLogger()
@@ -212,15 +218,15 @@ def init_classifier_compression_arg_parser(include_ptq_lapq_args=False):
     parser = argparse.ArgumentParser(description='Distiller image classification model compression')
     parser.add_argument('data', metavar='DATASET_DIR', help='path to dataset')
     parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18', type=lambda s: s.lower(),
-                        choices=models.ALL_MODEL_NAMES,
+                        choices=models.__dict__,
                         help='model architecture: ' +
-                        ' | '.join(models.ALL_MODEL_NAMES) +
+                        ' | '.join(models.__dict__) +
                         ' (default: resnet18)')
     parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
     parser.add_argument('--epochs', type=int, metavar='N', default=90,
                         help='number of total epochs to run (default: 90')
-    parser.add_argument('-b', '--batch-size', default=256, type=int,
+    parser.add_argument('-b', '--batch-size', default=25, type=int,
                         metavar='N', help='mini-batch size (default: 256)')
 
     optimizer_args = parser.add_argument_group('Optimizer arguments')
@@ -472,11 +478,85 @@ def save_collectors_data(collectors, directory):
 def load_data(args, fixed_subset=False, sequential=False, load_train=True, load_val=True, load_test=True):
     test_only = not load_train and not load_val
 
-    train_loader, val_loader, test_loader, _ = apputils.load_data(args.dataset, args.arch,
-                              os.path.expanduser(args.data), args.batch_size,
-                              args.workers, args.validation_split, args.deterministic,
-                              args.effective_train_size, args.effective_valid_size, args.effective_test_size,
-                              fixed_subset, sequential, test_only)
+    # train_loader, val_loader, test_loader, _ = apputils.load_data(args.dataset, args.arch,
+    #                           os.path.expanduser(args.data), args.batch_size,
+    #                           args.workers, args.validation_split, args.deterministic,
+    #                           args.effective_train_size, args.effective_valid_size, args.effective_test_size,
+    #                           fixed_subset, sequential, test_only)
+
+    train_setting_file = "train_%s_split%d.txt" % (args.modality, args.split)
+    train_split_file = os.path.join(args.settings, args.dataset, train_setting_file)
+    val_setting_file = "val_%s_split%d.txt" % (args.modality, args.split)
+    val_split_file = os.path.join(args.settings, args.dataset, val_setting_file)
+    if not os.path.exists(train_split_file) or not os.path.exists(val_split_file):
+        print("No split file exists in %s directory. Preprocess the dataset first" % (args.settings))
+    
+    if args.modality == "rgb":
+        is_color = True
+        scale_ratios = [1.0, 0.875, 0.75, 0.66]
+        clip_mean = [0.485, 0.456, 0.406] * args.new_length
+        clip_std = [0.229, 0.224, 0.225] * args.new_length
+    elif args.modality == "tvl1_flow" or args.modality == "lk_flow":
+        is_color = False
+        scale_ratios = [1.0, 0.875, 0.75]
+        clip_mean = [0.5, 0.5] * args.new_length
+        clip_std = [0.226, 0.226] * args.new_length
+    else:
+        print("No such modality. Only rgb and flow supported.")
+        print("No such modality. Only rgb and flow supported.", file = f_log)
+
+
+    normalize = video_transforms.Normalize(mean=clip_mean,
+                                           std=clip_std)
+    train_transform = video_transforms.Compose([
+            #video_transforms.Scale((288)),
+            video_transforms.MultiScaleCrop((256, 256), scale_ratios),
+            video_transforms.RandomHorizontalFlip(),
+            video_transforms.ToTensor(),
+            normalize,
+        ])
+
+    val_transform = video_transforms.Compose([
+            #video_transforms.Scale((288)),
+            video_transforms.CenterCrop((256)),
+            video_transforms.ToTensor(),
+            normalize,
+        ])
+
+    
+    train_dataset = datasets.__dict__[args.dataset](root=args.data,
+                                                    source=train_split_file,
+                                                    phase="train",
+                                                    modality=args.modality,
+                                                    is_color=is_color,
+                                                    new_length=args.new_length,
+                                                    new_width=args.new_width,
+                                                    new_height=args.new_height,
+                                                    video_transform=train_transform)
+    val_dataset = datasets.__dict__[args.dataset](root=args.data,
+                                                  source=val_split_file,
+                                                  phase="val",
+                                                  modality=args.modality,
+                                                  is_color=is_color,
+                                                  new_length=args.new_length,
+                                                  new_width=args.new_width,
+                                                  new_height=args.new_height,
+                                                  video_transform=val_transform)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers)
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers)
+    test_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers)
+
+
     if test_only:
         msglogger.info('Dataset sizes:\n\ttest=%d', len(test_loader.sampler))
     else:
@@ -582,10 +662,11 @@ def train(train_loader, model, criterion, optimizer, epoch,
             # Handle loss calculation for inception models separately due to auxiliary outputs
             # if user turned off auxiliary classifiers by hand, then loss should be calculated normally,
             # so, we have this check to ensure we only call this function when output is a tuple
-            if models.is_inception(args.arch) and isinstance(output, tuple):
-                loss = inception_training_loss(output, target, criterion, args)
-            else:
-                loss = criterion(output, target)
+            # if models.is_inception(args.arch) and isinstance(output, tuple):
+            #     loss = inception_training_loss(output, target, criterion, args)
+            # else:
+
+            loss = criterion(output, target)
             # Measure accuracy
             # For inception models, we only consider accuracy of main classifier
             if isinstance(output, tuple):

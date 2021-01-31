@@ -27,6 +27,30 @@ def add_cmdline_args(parser):
                         help='List of loss weights for early exits (e.g. --earlyexit_lossweights 0.1 0.3)')
     parser.add_argument('--earlyexit_thresholds', type=float, nargs='*', dest='earlyexit_thresholds', default=None,
                         help='List of EarlyExit thresholds (e.g. --earlyexit_thresholds 1.2 0.9)')
+    
+    parser.add_argument('--modality', '-m', metavar='MODALITY', default='rgb',
+                    	choices=["rgb", "tvl1_flow", "lk_flow"],
+                    	help='modality: rgb | flow')
+
+    parser.add_argument('--dataset', '-d', default='ucf101',
+                    	choices=["ucf101", "hmdb51"],
+                    	help='dataset: ucf101 | hmdb51')
+
+    parser.add_argument('-s', '--split', default=1, type=int, metavar='S',
+                    	help='which split of data to work on (default: 1)')
+
+    parser.add_argument('--settings', metavar='DIR', default='./datasets/settings',
+                    	help='path to datset setting files')
+
+    parser.add_argument('--new_length', default=1, type=int,
+                    	metavar='N', help='length of sampled video frames (default: 1)')
+
+    parser.add_argument('--new_width', default=340, type=int,
+                    	metavar='N', help='resize width (default: 340)')
+    parser.add_argument('--new_height', default=256, type=int,
+                    	metavar='N', help='resize height (default: 256)')
+    
+
     distiller.knowledge_distillation.add_distillation_args(parser, models.ALL_MODEL_NAMES, True)
     distiller.pruning.greedy_filter_pruning.add_greedy_pruner_args(parser)
     return parser
