@@ -230,7 +230,7 @@ def rgb_resnet18(pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], pretrained, **kwargs)
+    return _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], pretrained, **kwargs)
 
 
 def rgb_resnet34(pretrained=False, **kwargs):
@@ -238,7 +238,7 @@ def rgb_resnet34(pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    _resnet('resnet34', DistillerBasicBlock, [3, 4, 6, 3], pretrained, **kwargs)
+    return _resnet('resnet34', DistillerBasicBlock, [3, 4, 6, 3], pretrained, **kwargs)
 
 
 def rgb_resnet50(pretrained=False, **kwargs):

@@ -69,7 +69,7 @@ parser.add_argument('--print-freq', default=50, type=int,
                     metavar='N', help='print frequency (default: 50)')
 parser.add_argument('--save-freq', default=25, type=int,
                     metavar='N', help='save frequency (default: 25)')
-parser.add_argument('--resume', default='./checkpoints', type=str, metavar='PATH',
+parser.add_argument('--resume', default=None, type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--save-path', default='./checkpoints', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
