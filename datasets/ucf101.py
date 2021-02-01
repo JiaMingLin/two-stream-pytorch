@@ -127,12 +127,12 @@ class ucf101(data.Dataset):
         self.transform = transform
         self.temporal_jitter = temporal_jitter
         self.name_pattern = name_pattern
-        # self.video_loader = video_loader
-        # self.video_ext = video_ext
-        # self.use_decord = use_decord
-        # self.slowfast = slowfast
-        # self.slow_temporal_stride = slow_temporal_stride
-        # self.fast_temporal_stride = fast_temporal_stride
+        self.video_loader = video_loader
+        self.video_ext = video_ext
+        self.use_decord = use_decord
+        self.slowfast = slowfast
+        self.slow_temporal_stride = slow_temporal_stride
+        self.fast_temporal_stride = fast_temporal_stride
         self.data_aug = data_aug
         self.lazy_init = lazy_init
 
