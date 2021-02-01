@@ -160,26 +160,17 @@ def main():
         print("No split file exists in %s directory. Preprocess the dataset first" % (args.settings))
         print("No split file exists in %s directory. Preprocess the dataset first" % (args.settings), file = f_log )
 
-    train_dataset = datasets.__dict__[args.dataset](root=args.data,
-                                                    source=train_split_file,
-                                                    phase="train",
-                                                    modality=args.modality,
-                                                    is_color=is_color,
-                                                    new_length=args.new_length,
-                                                    new_width=args.new_width,
-                                                    new_height=args.new_height,
-                                                    video_transform=train_transform,
-                                                    num_segments = args.num_segments)
-    val_dataset = datasets.__dict__[args.dataset](root=args.data,
-                                                  source=val_split_file,
-                                                  phase="val",
-                                                  modality=args.modality,
-                                                  is_color=is_color,
-                                                  new_length=args.new_length,
-                                                  new_width=args.new_width,
-                                                  new_height=args.new_height,
-                                                  video_transform=val_transform,
-                                                  num_segments = args.num_segments)
+    train_dataset = datasets.__dict__[args.dataset](setting=train_split_file, root=args.data, train=True,
+                               new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
+                               target_width=args.new_width, target_height=args.new_height,
+                               modality=args.modality, num_segments=args.num_segments, transform=train_transform,
+                               name_pattern='frame%06d.jpg')
+
+    val_dataset = datasets.__dict__[args.dataset](setting=val_split_file, root=args.data, train=False,
+                             new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
+                             target_width=args.new_width, target_height=args.new_height,
+                             modality=args.modality, num_segments=args.num_segments, transform=val_transform,
+                             name_pattern='frame%06d.jpg')
 
     print('{} samples found, {} train samples and {} test samples.'.format(len(val_dataset)+len(train_dataset),
                                                                            len(train_dataset),

@@ -104,7 +104,7 @@ class ucf101(data.Dataset):
                  lazy_init=False,
                  transform=None):
 
-        super(VideoClsCustom, self).__init__()
+        super(ucf101, self).__init__()
 
         # from gluoncv.utils.filesystem import try_import_cv2, try_import_decord, try_import_mmcv
         # self.cv2 = try_import_cv2()
