@@ -228,10 +228,10 @@ def main():
 def build_model(resume_path = None):
     #Load pretrained model
     if resume_path is None:
-        model = models.__dict__[args.arch](pretrained=True, num_classes=101)
+        model = models.__dict__[args.arch](num_classes=101, pretrained=True)
     else:
     #Load saved model
-        model = models.__dict__[args.arch](pretrained=False, num_classes=101)
+        model = models.__dict__[args.arch](num_classes=101, pretrained=False)
         model_path = resume_path
         params = torch.load(model_path) 
         model.load_state_dict(params['state_dict'])
