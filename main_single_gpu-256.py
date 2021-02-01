@@ -11,6 +11,7 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
 
+from gluoncv.data.transforms import video
 import video_transforms
 import models
 import datasets
@@ -55,7 +56,7 @@ parser.add_argument('--gpu', default=0, type=int,
                     metavar='N', help='executing GPU number')
 parser.add_argument('--num-segments', default=1, type=int,
                     metavar='N', help='Number of segments to evenly split the video.')
-parser.add_argument('--new_width', default=340, type=int,
+parser.add_argument('--new_width', default=256, type=int,
                     metavar='N', help='resize width (default: 340)')
 parser.add_argument('--new_height', default=256, type=int,
                     metavar='N', help='resize height (default: 256)')
@@ -79,6 +80,10 @@ parser.add_argument('--save-path', default='./checkpoints', type=str, metavar='P
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
+parser.add_argument('--more-fix-crop', action='store_false',
+                    help='if set to True, enable fixed corner cropping with more corners.')
+parser.add_argument('--max-distort', type=int, default=1,
+                    help='maximum image aspect ratio distortion allowed during data augmentation. default is 1')
 
 global args
 
@@ -136,20 +141,11 @@ def main():
 
     normalize = video_transforms.Normalize(mean=clip_mean,
                                            std=clip_std)
-    train_transform = video_transforms.Compose([
-            #video_transforms.Scale((288)),
-            video_transforms.MultiScaleCrop((256, 256), scale_ratios),
-            video_transforms.RandomHorizontalFlip(),
-            video_transforms.ToTensor(),
-            normalize,
-        ])
-
-    val_transform = video_transforms.Compose([
-            #video_transforms.Scale((288)),
-            video_transforms.CenterCrop((256)),
-            video_transforms.ToTensor(),
-            normalize,
-        ])
+    transform_train = video.VideoGroupTrainTransform(size=(args.new_height, args.new_width), scale_ratios=scale_ratios,
+                                                         more_fix_crop=args.more_fix_crop, max_distort=args.max_distort,
+                                                         mean=clip_mean, std=clip_std)
+    transform_test = video.VideoGroupValTransform(size=(args.new_height, args.new_width),
+                                                      mean=clip_mean, std=clip_std)
 
     # data loading
     train_setting_file = "train_%s_split%d.txt" % (args.modality, args.split)
@@ -163,13 +159,13 @@ def main():
     train_dataset = datasets.__dict__[args.dataset](setting=train_split_file, root=args.data, train=True,
                                new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
                                target_width=args.new_width, target_height=args.new_height,
-                               modality=args.modality, num_segments=args.num_segments, transform=train_transform,
+                               modality=args.modality, num_segments=args.num_segments, transform=transform_train,
                                name_pattern='frame%06d.jpg')
 
     val_dataset = datasets.__dict__[args.dataset](setting=val_split_file, root=args.data, train=False,
                              new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
                              target_width=args.new_width, target_height=args.new_height,
-                             modality=args.modality, num_segments=args.num_segments, transform=val_transform,
+                             modality=args.modality, num_segments=args.num_segments, transform=transform_test,
                              name_pattern='frame%06d.jpg')
 
     print('{} samples found, {} train samples and {} test samples.'.format(len(val_dataset)+len(train_dataset),
