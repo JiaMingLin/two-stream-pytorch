@@ -107,7 +107,7 @@ class ucf101(data.Dataset):
         super(ucf101, self).__init__()
 
         # from gluoncv.utils.filesystem import try_import_cv2, try_import_decord, try_import_mmcv
-        # self.cv2 = try_import_cv2()
+        # cv2 = try_import_cv2()
 
         self.root = root
         self.setting = setting
@@ -299,13 +299,13 @@ class ucf101(data.Dataset):
                     frame_path = os.path.join(directory, self.name_pattern % (offset + skip_offsets[i]))
                 else:
                     frame_path = os.path.join(directory, self.name_pattern % (offset))
-                cv_img = self.cv2.imread(frame_path)
+                cv_img = cv2.imread(frame_path)
                 if cv_img is None:
                     raise(RuntimeError("Could not load file %s starting at frame %d. Check data path." % (frame_path, offset)))
                 if self.new_width > 0 and self.new_height > 0:
                     h, w, _ = cv_img.shape
                     if h != self.new_height or w != self.new_width:
-                        cv_img = self.cv2.resize(cv_img, (self.new_width, self.new_height))
+                        cv_img = cv2.resize(cv_img, (self.new_width, self.new_height))
                 cv_img = cv_img[:, :, ::-1]
                 sampled_list.append(cv_img)
                 if offset + self.new_step < duration:
@@ -313,8 +313,8 @@ class ucf101(data.Dataset):
         return sampled_list
 
     def _tvl1_flow_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
-        interpolation = self.cv2.INTER_LINEAR
-        cv_read_flag = self.cv2.IMREAD_GRAYSCALE
+        interpolation = cv2.INTER_LINEAR
+        cv_read_flag = cv2.IMREAD_GRAYSCALE
 
         action = directory.split('/')[-1]
         parent_dir = directory.replace(action, "")
@@ -330,11 +330,11 @@ class ucf101(data.Dataset):
                     frame_name_x = self.name_pattern % (offset + i)
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_x = path_pattern % ("u") + "/" + frame_name_x
-                    cv_img_origin_x = self.cv2.imread(frame_path_x, cv_read_flag)
+                    cv_img_origin_x = cv2.imread(frame_path_x, cv_read_flag)
 
                     frame_name_y = self.name_pattern % (offset + i)
                     frame_path_y = path_pattern % ("v") + "/" + frame_name_y
-                    cv_img_origin_y = self.cv2.imread(frame_path_y, cv_read_flag)
+                    cv_img_origin_y = cv2.imread(frame_path_y, cv_read_flag)
 
                 if cv_img_origin_x is None or cv_img_origin_y is None:
                     print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
@@ -354,8 +354,8 @@ class ucf101(data.Dataset):
     def _lk_flow_TSN_loader(self, directory, duration, indices, skip_offsets, scale='int8'):
 
         # directory = /optical_flow_dir/action
-        interpolation = self.cv2.INTER_LINEAR
-        cv_read_flag = self.cv2.IMREAD_GRAYSCALE
+        interpolation = cv2.INTER_LINEAR
+        cv_read_flag = cv2.IMREAD_GRAYSCALE
 
         action_clip = directory.split('/')[-1]
         name_pattern = 'flow_%s_%06d.jpg'
@@ -370,12 +370,12 @@ class ucf101(data.Dataset):
                     frame_name_x = name_pattern % ("x", (offset + i))
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_x = os.path.join(directory,frame_name_x)
-                    cv_img_origin_x = self.cv2.imread(frame_path_x)
+                    cv_img_origin_x = cv2.imread(frame_path_x)
 
                     frame_name_y = name_pattern % ("y", (offset + i))
                     # path = tvl1_flow/u/ACTIOM
                     frame_path_y = os.path.join(directory,frame_name_y)
-                    cv_img_origin_y = self.cv2.imread(frame_path_y)
+                    cv_img_origin_y = cv2.imread(frame_path_y)
 
                 if cv_img_origin_y is None or cv_img_origin_x is None:
                     print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
@@ -411,13 +411,13 @@ class ucf101(data.Dataset):
                 else:
                     frame_path = os.path.join(directory, self.name_pattern % (offset))
                 if (i + 1) % self.fast_temporal_stride == 0:
-                    cv_img = self.cv2.imread(frame_path)
+                    cv_img = cv2.imread(frame_path)
                     if cv_img is None:
                         raise(RuntimeError("Could not load file %s starting at frame %d. Check data path." % (frame_path, offset)))
                     if self.new_width > 0 and self.new_height > 0:
                         h, w, _ = cv_img.shape
                         if h != self.new_height or w != self.new_width:
-                            cv_img = self.cv2.resize(cv_img, (self.new_width, self.new_height))
+                            cv_img = cv2.resize(cv_img, (self.new_width, self.new_height))
                     cv_img = cv_img[:, :, ::-1]
                     fast_list.append(cv_img)
 
@@ -445,7 +445,7 @@ class ucf101(data.Dataset):
                 if self.new_width > 0 and self.new_height > 0:
                     h, w, _ = vid_frame.shape
                     if h != self.new_height or w != self.new_width:
-                        vid_frame = self.cv2.resize(vid_frame, (self.new_width, self.new_height))
+                        vid_frame = cv2.resize(vid_frame, (self.new_width, self.new_height))
                 vid_frame = vid_frame[:, :, ::-1]
                 sampled_list.append(vid_frame)
                 if offset + self.new_step < duration:
