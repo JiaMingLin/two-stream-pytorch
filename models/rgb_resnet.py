@@ -295,7 +295,7 @@ def rgb_resnet50_aux( num_classes, pretrained=False, **kwargs):
 
     return model
 
-def rgb_resnet101(pretrained=False, num_classes, **kwargs):
+def rgb_resnet101(num_classes, pretrained=False, **kwargs):
     """Constructs a ResNet-101 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
