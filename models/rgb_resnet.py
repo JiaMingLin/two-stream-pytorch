@@ -225,7 +225,7 @@ def _resnet(model_name, block, layers, num_classes, pretrained=False, **kwargs):
     return model
 
 
-def rgb_resnet18(pretrained=False, num_classes, **kwargs):
+def rgb_resnet18(num_classes,pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -233,7 +233,7 @@ def rgb_resnet18(pretrained=False, num_classes, **kwargs):
     return _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], pretrained, **kwargs)
 
 
-def rgb_resnet34(pretrained=False, num_classes, **kwargs):
+def rgb_resnet34( num_classes,pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -241,7 +241,7 @@ def rgb_resnet34(pretrained=False, num_classes, **kwargs):
     return _resnet('resnet34', DistillerBasicBlock, [3, 4, 6, 3], pretrained, **kwargs)
 
 
-def rgb_resnet50(pretrained=False, num_classes, **kwargs):
+def rgb_resnet50( num_classes,pretrained=False, **kwargs):
     """Constructs a ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -262,7 +262,7 @@ def rgb_resnet50(pretrained=False, num_classes, **kwargs):
 
     return model
 
-def rgb_resnet50_aux(pretrained=False, num_classes, **kwargs):
+def rgb_resnet50_aux( num_classes, pretrained=False, **kwargs):
     """Constructs a ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
