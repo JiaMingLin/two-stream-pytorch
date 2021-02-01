@@ -71,6 +71,8 @@ parser.add_argument('--print-freq', default=50, type=int,
                     metavar='N', help='print frequency (default: 50)')
 parser.add_argument('--save-freq', default=25, type=int,
                     metavar='N', help='save frequency (default: 25)')
+parser.add_argument('--num-classes', default=101, type=int,
+                    metavar='N', help='Number of classes(default = 101)')
 parser.add_argument('--resume', default=None, type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--save-path', default='./checkpoints', type=str, metavar='PATH',
@@ -228,10 +230,10 @@ def main():
 def build_model(resume_path = None):
     #Load pretrained model
     if resume_path is None:
-        model = models.__dict__[args.arch](num_classes=101, pretrained=True)
+        model = models.__dict__[args.arch](args.num_classes, pretrained=True)
     else:
     #Load saved model
-        model = models.__dict__[args.arch](num_classes=101, pretrained=False)
+        model = models.__dict__[args.arch](args.num_classes, pretrained=False)
         model_path = resume_path
         params = torch.load(model_path) 
         model.load_state_dict(params['state_dict'])
