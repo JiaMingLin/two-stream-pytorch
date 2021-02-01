@@ -207,9 +207,9 @@ class ResNet(nn.Module):
 
         return x
 
-def _resnet(model_name, block, layers, pretrained=False, **kwargs):
+def _resnet(model_name, block, layers, num_classes, pretrained=False, **kwargs):
 
-    model = ResNet(block, layers, **kwargs)
+    model = ResNet(block, layers, num_classes, **kwargs)
     if pretrained:
         # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
         pretrained_dict = model_zoo.load_url(model_urls[model_name])
@@ -225,7 +225,7 @@ def _resnet(model_name, block, layers, pretrained=False, **kwargs):
     return model
 
 
-def rgb_resnet18(pretrained=False, **kwargs):
+def rgb_resnet18(pretrained=False, num_classes, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -233,7 +233,7 @@ def rgb_resnet18(pretrained=False, **kwargs):
     return _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], pretrained, **kwargs)
 
 
-def rgb_resnet34(pretrained=False, **kwargs):
+def rgb_resnet34(pretrained=False, num_classes, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -241,7 +241,7 @@ def rgb_resnet34(pretrained=False, **kwargs):
     return _resnet('resnet34', DistillerBasicBlock, [3, 4, 6, 3], pretrained, **kwargs)
 
 
-def rgb_resnet50(pretrained=False, **kwargs):
+def rgb_resnet50(pretrained=False, num_classes, **kwargs):
     """Constructs a ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -262,7 +262,7 @@ def rgb_resnet50(pretrained=False, **kwargs):
 
     return model
 
-def rgb_resnet50_aux(pretrained=False, **kwargs):
+def rgb_resnet50_aux(pretrained=False, num_classes, **kwargs):
     """Constructs a ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -295,7 +295,7 @@ def rgb_resnet50_aux(pretrained=False, **kwargs):
 
     return model
 
-def rgb_resnet101(pretrained=False, **kwargs):
+def rgb_resnet101(pretrained=False, num_classes, **kwargs):
     """Constructs a ResNet-101 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet

@@ -49,7 +49,8 @@ def add_cmdline_args(parser):
                     	metavar='N', help='resize width (default: 340)')
     parser.add_argument('--new_height', default=256, type=int,
                     	metavar='N', help='resize height (default: 256)')
-    
+    parser.add_argument('--num_classes', default=101, type=int,
+                        metavar='N', help='classes number(default: 101)')
 
     distiller.knowledge_distillation.add_distillation_args(parser, models.ALL_MODEL_NAMES, True)
     distiller.pruning.greedy_filter_pruning.add_greedy_pruner_args(parser)

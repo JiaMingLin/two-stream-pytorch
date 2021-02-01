@@ -386,7 +386,7 @@ def _config_compute_device(args):
 
 def _init_learner(args):
     # Create the model
-    model = create_model(args.pretrained, args.dataset, args.arch,
+    model = create_model(args.pretrained, args.dataset, args.arch, args.num_classes,
                          parallel=not args.load_serialized, device_ids=args.gpus)
     compression_scheduler = None
 

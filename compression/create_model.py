@@ -16,7 +16,7 @@ import models
 
 SUPPORTED_DATASETS = ['ucf101', 'hmdb51']
 
-def create_model(pretrained, dataset, arch, parallel=True, device_ids=None):
+def create_model(pretrained, dataset, arch, num_classes, parallel=True, device_ids=None):
     """Create a pytorch model based on the model architecture and dataset
 
     Args:
@@ -37,7 +37,7 @@ def create_model(pretrained, dataset, arch, parallel=True, device_ids=None):
     model = None
     try:
         
-        model = models.__dict__[arch](pretrained)
+        model = models.__dict__[arch](pretrained, num_classes)
 
     except ValueError:
         raise ValueError('Could not recognize dataset {} and arch {} pair'.format(dataset, arch))
