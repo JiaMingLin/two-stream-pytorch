@@ -253,10 +253,14 @@ def train(train_loader, model, criterion, optimizer, epoch):
     optimizer.zero_grad()
     loss_mini_batch = 0.0
     acc_mini_batch = 0.0
-    print ("-----------------")
-    for i, (input, target) in enumerate(train_loader):
-        #input = input.float().cuda(async=True)
-        #target = target.cuda(async=True)
+    print ("-----------------"*5)
+    # for one batch, several videos are contained, 
+    # one video has several frames
+    # input: torch Tensor(batch, seg, channel, rows, cols)
+    # inference input(X): seg, channel, rows, cols
+    for i, (input, target) in enumerate(train_loader):  
+
+        input = input.reshape((-1,) + input.shape[2:])
         input = input.float().cuda()
         target = target.cuda()
         input_var = torch.autograd.Variable(input)
