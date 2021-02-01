@@ -244,8 +244,8 @@ def init_classifier_compression_arg_parser(include_ptq_lapq_args=False):
     load_checkpoint_group = parser.add_argument_group('Resuming arguments')
     load_checkpoint_group_exc = load_checkpoint_group.add_mutually_exclusive_group()
     # TODO(barrh): args.deprecated_resume is deprecated since v0.3.1
-    # load_checkpoint_group_exc.add_argument('--resume', dest='deprecated_resume', default='', type=str,
-    #                     metavar='PATH', help=argparse.SUPPRESS)
+    load_checkpoint_group_exc.add_argument('--resume', dest='deprecated_resume', default='', type=str,
+                        metavar='PATH', help=argparse.SUPPRESS)
     load_checkpoint_group_exc.add_argument('--resume-from', dest='resumed_checkpoint_path', default='',
                         type=str, metavar='PATH',
                         help='path to latest checkpoint. Use to resume paused training session.')
