@@ -53,7 +53,7 @@ parser.add_argument('--new_length', default=1, type=int,
                     metavar='N', help='length of sampled video frames (default: 1)')
 parser.add_argument('--gpu', default=0, type=int,
                     metavar='N', help='executing GPU number')
-parser.add_argument('--num-segment', default=1, type=int,
+parser.add_argument('--num-segments', default=1, type=int,
                     metavar='N', help='Number of segments to evenly split the video.')
 parser.add_argument('--new_width', default=340, type=int,
                     metavar='N', help='resize width (default: 340)')
