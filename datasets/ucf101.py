@@ -10,9 +10,9 @@ import torch.utils.data as data
 # from mxnet import nd
 # from mxnet.gluon.data import dataset
 
-__all__ = ['VideoClsCustom']
+__all__ = ['ucf101']
 
-class VideoClsCustom(data.Dataset):
+class ucf101(data.Dataset):
     """Load your own video classification dataset.
     Parameters
     ----------
