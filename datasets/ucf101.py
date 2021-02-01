@@ -134,7 +134,7 @@ class ucf101(data.Dataset):
         # self.slow_temporal_stride = slow_temporal_stride
         # self.fast_temporal_stride = fast_temporal_stride
         self.data_aug = data_aug
-        # self.lazy_init = lazy_init
+        self.lazy_init = lazy_init
 
         # if self.slowfast:
         #     assert slow_temporal_stride % fast_temporal_stride == 0, 'slow_temporal_stride needs to be multiples of slow_temporal_stride, please set it accordinly.'
