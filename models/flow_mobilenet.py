@@ -138,7 +138,7 @@ class MobileNetV2(nn.Module):
         self.features = nn.Sequential(*features)
 
         self.dropout = nn.Dropout(0.2)
-        self.fc = nn.Linear(self.last_channel, num_classes),
+        self.fc_action = nn.Linear(self.last_channel, num_classes)
 
         # weight initialization
         for m in self.modules():
@@ -164,7 +164,7 @@ class MobileNetV2(nn.Module):
         # segmental consensus
         x = torch.reshape(x, (-1, self.num_segments, self.last_channel))
         x = torch.mean(x,dim = 1)
-        x = self.fc(x)
+        x = self.fc_action(x)
 
     def forward(self, x):
         return self._forward_impl(x)
