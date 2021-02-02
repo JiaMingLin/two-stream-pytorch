@@ -69,7 +69,7 @@ parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
                     metavar='W', help='weight decay (default: 5e-4)')
 parser.add_argument('--print-freq', default=50, type=int,
                     metavar='N', help='print frequency (default: 50)')
-parser.add_argument('--save-freq', default=25, type=int,
+parser.add_argument('--save_freq', default=5, type=int,
                     metavar='N', help='save frequency (default: 25)')
 parser.add_argument('--num-classes', default=101, type=int,
                     metavar='N', help='Number of classes(default = 101)')
