@@ -45,11 +45,12 @@ class ToTensor(object):
     """
 
     def __call__(self, clips):
-        if isinstance(clips, np.ndarray):
-            # handle numpy array
-            clips = torch.from_numpy(clips.transpose((2, 0, 1)))
-            # backward compatibility
-            return clips.float().div(255.0)
+        new_clips = []
+        for frame in clips:
+            tensor_img = np.transpose(frame, axes = (2,0,1))/255.
+            new_clips.append(tensor_img)
+
+        return new_clips
 
 class Normalize(object):
     """Given mean: (R, G, B) and std: (R, G, B),
@@ -61,14 +62,16 @@ class Normalize(object):
     """
 
     def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
+        self.mean_t = np.array(mean).reshape((1,1,len(mean)))
+        self.std_t = np.array(std).reshape((1,1,len(std)))
 
-    def __call__(self, tensor):
+    def __call__(self, clips):
         # TODO: make efficient
-        for t, m, s in zip(tensor, self.mean, self.std):
-            t.sub_(m).div_(s)
-        return tensor
+        new_clips = []
+        for frame in clips:
+            new_clips.append((frame-mean_t)/std_t)
+
+        return new_clips
 
 class Scale(object):
     """ Rescales the input numpy array to the given 'size'.
@@ -164,9 +167,14 @@ class RandomHorizontalFlip(object):
     """Randomly horizontally flips the given numpy array with a probability of 0.5
     """
     def __call__(self, clips):
+
         if random.random() < 0.5:
-            clips = np.fliplr(clips)
-            clips = np.ascontiguousarray(clips)
+            flipped_clips = []
+            for frame in clips:
+                frame = np.fliplr(frame)
+                frame = np.ascontiguousarray(frame)
+                flipped_clips.append(frame)
+            return flipped_clips
         return clips
 
 class RandomVerticalFlip(object):
@@ -242,6 +250,9 @@ class MultiScaleCrop(object):
         http://arxiv.org/abs/1507.02159
         Limin Wang, Yuanjun Xiong, Zhe Wang and Yu Qiao
 
+        1. random scale for a clip
+        2. random crop for a clip
+
     Parameters:
         size: height and width required by network input, e.g., (224, 224)
         scale_ratios: efficient scale jittering, e.g., [1.0, 0.875, 0.75, 0.66]
@@ -299,7 +310,7 @@ class MultiScaleCrop(object):
         return crop_sizes
 
     def __call__(self, clips):
-        h, w, c = clips.shape
+        h, w, c = clips[0].shape
         is_color = False
         if c % 3 == 0:
             is_color = True
@@ -318,20 +329,21 @@ class MultiScaleCrop(object):
             h_off = random.randint(0, h - self.height)
             w_off = random.randint(0, w - self.width)
 
-        scaled_clips = np.zeros((self.height,self.width,c))
+        num_imgs = len(clips)
+        # scaled_clips = np.zeros((self.height,self.width,c))
+        scaled_clips = []
         if is_color:
-            num_imgs = int(c / 3)
             for frame_id in range(num_imgs):
-                cur_img = clips[:,:,frame_id*3:frame_id*3+3]
+                cur_img = clips[frame_id]
                 crop_img = cur_img[h_off:h_off+crop_height, w_off:w_off+crop_width, :]
-                scaled_clips[:,:,frame_id*3:frame_id*3+3] = cv2.resize(crop_img, (self.width, self.height), self.interpolation)
+                scaled_clips.append(cv2.resize(crop_img, (self.width, self.height), self.interpolation))
             return scaled_clips
         else:
-            num_imgs = int(c / 1)
             for frame_id in range(num_imgs):
-                cur_img = clips[:,:,frame_id:frame_id+1]
+                cur_img = clips[frame_id]
                 crop_img = cur_img[h_off:h_off+crop_height, w_off:w_off+crop_width, :]
-                scaled_clips[:,:,frame_id:frame_id+1] = np.expand_dims(cv2.resize(crop_img, (self.width, self.height), self.interpolation), axis=2)
+                scaled_clips.append(np.expand_dims(cv2.resize(crop_img, (self.width, self.height), self.interpolation), axis=2))
+
             return scaled_clips
 
 

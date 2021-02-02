@@ -127,13 +127,13 @@ def main():
     if args.modality == "rgb":
         is_color = True
         scale_ratios = [1.0, 0.875, 0.75, 0.66]
-        clip_mean = [0.485, 0.456, 0.406] * args.new_length
-        clip_std = [0.229, 0.224, 0.225] * args.new_length
+        clip_mean = [0.485, 0.456, 0.406]
+        clip_std = [0.229, 0.224, 0.225]
     elif args.modality == "tvl1_flow" or args.modality == "lk_flow":
         is_color = False
         scale_ratios = [1.0, 0.875, 0.75]
-        clip_mean = [0.5, 0.5] * args.new_length
-        clip_std = [0.226, 0.226] * args.new_length
+        clip_mean = [0.5, 0.5]
+        clip_std = [0.226, 0.226]
     else:
         print("No such modality. Only rgb and flow supported.")
         print("No such modality. Only rgb and flow supported.", file = f_log)

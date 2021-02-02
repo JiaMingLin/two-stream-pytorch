@@ -306,7 +306,7 @@ class ucf101(data.Dataset):
                     h, w, _ = cv_img.shape
                     if h != self.new_height or w != self.new_width:
                         cv_img = cv2.resize(cv_img, (self.new_width, self.new_height))
-                cv_img = cv_img[:, :, ::-1]
+                cv_img = cv_img[:, :, ::-1]  # BGR to RGB
                 sampled_list.append(cv_img)
                 if offset + self.new_step < duration:
                     offset += self.new_step
