@@ -6,6 +6,7 @@ import os
 import cv2
 import numpy as np
 import torch.utils.data as data
+import torch
 
 # from mxnet import nd
 # from mxnet.gluon.data import dataset
