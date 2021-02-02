@@ -166,13 +166,13 @@ def main():
     train_dataset = datasets.__dict__[args.dataset](setting=train_split_file, root=args.data, train=True,
                                new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
                                target_width=args.new_width, target_height=args.new_height,
-                               modality=args.modality, num_segments=args.num_segments, transform=transform_train,
+                               modality=args.modality, num_segments=args.num_segments, transform=train_transform,
                                name_pattern='frame%06d.jpg')
 
     val_dataset = datasets.__dict__[args.dataset](setting=val_split_file, root=args.data, train=False,
                              new_width=args.new_width, new_height=args.new_height, new_length=args.new_length,
                              target_width=args.new_width, target_height=args.new_height,
-                             modality=args.modality, num_segments=args.num_segments, transform=transform_test,
+                             modality=args.modality, num_segments=args.num_segments, transform=val_transform,
                              name_pattern='frame%06d.jpg')
 
     print('{} samples found, {} train samples and {} test samples.'.format(len(val_dataset)+len(train_dataset),
