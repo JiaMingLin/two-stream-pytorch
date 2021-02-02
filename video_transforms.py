@@ -69,7 +69,7 @@ class Normalize(object):
         # TODO: make efficient
         new_clips = []
         for frame in clips:
-            new_clips.append((frame-mean_t)/std_t)
+            new_clips.append((frame-self.mean_t)/self.std_t)
 
         return new_clips
 
