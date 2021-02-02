@@ -224,10 +224,10 @@ def main():
 def build_model(resume_path = None):
     #Load pretrained model
     if resume_path is None:
-        model = models.__dict__[args.arch](args.num_classes, pretrained=True)
+        model = models.__dict__[args.arch](args.num_classes, args.num_segments, pretrained=True)
     else:
     #Load saved model
-        model = models.__dict__[args.arch](args.num_classes, pretrained=False)
+        model = models.__dict__[args.arch](args.num_classes, args.num_segments, pretrained=False)
         model_path = resume_path
         params = torch.load(model_path) 
         model.load_state_dict(params['state_dict'])
@@ -249,11 +249,11 @@ def train(train_loader, model, criterion, optimizer, epoch):
     optimizer.zero_grad()
     loss_mini_batch = 0.0
     acc_mini_batch = 0.0
-    print ("-----------------"*5)
+    print ("-----------------"*4)
     # for one batch, several videos are contained, 
-    # one video has several frames
+    # one video has several frames = num_segments
     # input: torch Tensor(batch, seg, channel, rows, cols)
-    # inference input(X): seg, channel, rows, cols
+    # inference input(X): batch*seg, channel, rows, cols
     for i, (input, target) in enumerate(train_loader):  
 
         input = input.reshape((-1,) + input.shape[2:])

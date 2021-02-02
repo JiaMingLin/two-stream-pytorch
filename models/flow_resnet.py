@@ -119,7 +119,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(7)
         # self.fc_aux = nn.Linear(512 * block.expansion, 101)
-        self.dp = nn.Dropout(p=0.7)
+        self.dp = nn.Dropout(p=0.5)
         self.fc_action = nn.Linear(512 * block.expansion, num_classes)
         # self.bn_final = nn.BatchNorm1d(num_classes)
         # self.fc2 = nn.Linear(num_classes, num_classes)

@@ -141,7 +141,7 @@ class DistillerBasicBlock(BasicBlock):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes, num_segments):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
@@ -155,7 +155,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(7)
         # self.fc_aux = nn.Linear(512 * block.expansion, 101)
-        self.dp = nn.Dropout(p=0.8)
+        self.dp = nn.Dropout(p=0.5)
         self.fc_action = nn.Linear(512 * block.expansion, num_classes)
         # self.bn_final = nn.BatchNorm1d(num_classes)
         # self.fc2 = nn.Linear(num_classes, num_classes)
@@ -200,6 +200,11 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.dp(x)
+
+        # segmental consensus
+        x = torch.reshape(x, (-1, num_segments, 512))
+        x = torch.mean(x,dim = 1)
+
         x = self.fc_action(x)
         # x = self.bn_final(x)
         # x = self.fc2(x)
@@ -207,9 +212,9 @@ class ResNet(nn.Module):
 
         return x
 
-def _resnet(model_name, block, layers, num_classes, pretrained=False, **kwargs):
+def _resnet(model_name, block, layers, num_classes, num_segments, pretrained=False, **kwargs):
 
-    model = ResNet(block, layers, num_classes, **kwargs)
+    model = ResNet(block, layers, num_classes, num_segments, **kwargs)
     if pretrained:
         # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
         pretrained_dict = model_zoo.load_url(model_urls[model_name])
@@ -225,12 +230,12 @@ def _resnet(model_name, block, layers, num_classes, pretrained=False, **kwargs):
     return model
 
 
-def rgb_resnet18(num_classes,pretrained=False, **kwargs):
+def rgb_resnet18(num_classes, num_segments, pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    return _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], num_classes, pretrained, **kwargs)
+    return _resnet('resnet18', DistillerBasicBlock, [2,2,2,2], num_classes, num_segments, pretrained, **kwargs)
 
 
 def rgb_resnet34( num_classes,pretrained=False, **kwargs):
