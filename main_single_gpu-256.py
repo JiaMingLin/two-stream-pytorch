@@ -11,7 +11,6 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
 
-from gluoncv.data.transforms import video
 import video_transforms
 import models
 import datasets
@@ -139,13 +138,21 @@ def main():
         print("No such modality. Only rgb and flow supported.")
         print("No such modality. Only rgb and flow supported.", file = f_log)
 
-    normalize = video_transforms.Normalize(mean=clip_mean,
-                                           std=clip_std)
-    transform_train = video.VideoGroupTrainTransform(size=(args.new_height, args.new_width), scale_ratios=scale_ratios,
-                                                         more_fix_crop=args.more_fix_crop, max_distort=args.max_distort,
-                                                         mean=clip_mean, std=clip_std)
-    transform_test = video.VideoGroupValTransform(size=(args.new_height, args.new_width),
-                                                      mean=clip_mean, std=clip_std)
+    normalize = video_transforms.Normalize(mean=clip_mean, std=clip_std)
+    train_transform = video_transforms.Compose([
+        #video_transforms.Scale((288)),
+        video_transforms.MultiScaleCrop((256, 256), scale_ratios),
+        video_transforms.RandomHorizontalFlip(),
+        video_transforms.ToTensor(),
+        normalize,
+    ])
+
+    val_transform = video_transforms.Compose([
+        #video_transforms.Scale((288)),
+        video_transforms.CenterCrop((256)),
+        video_transforms.ToTensor(),
+        normalize,
+    ])
 
     # data loading
     train_setting_file = "train_%s_split%d.txt" % (args.modality, args.split)
