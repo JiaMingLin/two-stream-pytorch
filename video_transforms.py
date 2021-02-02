@@ -45,9 +45,14 @@ class ToTensor(object):
     """
 
     def __call__(self, clips):
+
+        is_color = clips[0].shape[2] == 3
         new_clips = []
         for frame in clips:
-            tensor_img = np.transpose(frame, axes = (2,0,1))/255.
+            if is_color:
+                tensor_img = np.transpose(frame, axes = (2,0,1))/255.
+            else:
+                tensor_img = frame/255.
             new_clips.append(tensor_img)
 
         return new_clips
