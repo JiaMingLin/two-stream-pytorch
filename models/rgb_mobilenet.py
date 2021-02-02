@@ -85,7 +85,8 @@ class MobileNetV2(nn.Module):
                  width_mult=1.0,
                  inverted_residual_setting=None,
                  round_nearest=8,
-                 block=None):
+                 block=None,
+                 num_segments = 3):
         """
         MobileNet V2 main class
 
@@ -99,6 +100,8 @@ class MobileNetV2(nn.Module):
 
         """
         super(MobileNetV2, self).__init__()
+
+        self.num_segments = num_segments
 
         if block is None:
             block = InvertedResidual
@@ -139,11 +142,8 @@ class MobileNetV2(nn.Module):
         # make it nn.Sequential
         self.features = nn.Sequential(*features)
 
-        # building classifier
-        self.classifier = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(self.last_channel, num_classes),
-        )
+        self.dropout = nn.Dropout(0.2)
+        self.fc = nn.Linear(self.last_channel, num_classes),
 
         # weight initialization
         for m in self.modules():
@@ -164,14 +164,21 @@ class MobileNetV2(nn.Module):
         x = self.features(x)
         # Cannot use "squeeze" as batch-size can be 1 => must use reshape with x.shape[0]
         x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)
-        x = self.classifier(x)
+
+        x = self.dropout(x)
+
+        # segmental consensus
+        x = torch.reshape(x, (-1, self.num_segments, self.last_channel))
+        x = torch.mean(x,dim = 1)
+        x = self.fc(x)
+
         return x
 
     def forward(self, x):
         return self._forward_impl(x)
 
 
-def mobilenet_v2(pretrained=False, progress=True, **kwargs):
+def mobilenet_v2(pretrained=False, progress=True, num_segments=3, **kwargs):
     """
     Constructs a MobileNetV2 architecture from
     `"MobileNetV2: Inverted Residuals and Linear Bottlenecks" <https://arxiv.org/abs/1801.04381>`_.
@@ -213,7 +220,7 @@ def modified_model_dict_key(old_params):
 #         print(k1,k2,file=f)
 # f.close()
 
-def rgb_mobilenet(pretrained=False, progress=True, **kwargs):
+def rgb_mobilenet(num_classes, pretrained=False, progress=True, num_segments=3, **kwargs):
     """
     Constructs a MobileNetV2 architecture from
     `"MobileNetV2: Inverted Residuals and Linear Bottlenecks" <https://arxiv.org/abs/1801.04381>`_.
@@ -222,7 +229,7 @@ def rgb_mobilenet(pretrained=False, progress=True, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    model = MobileNetV2(**kwargs)
+    model = MobileNetV2(num_classes = num_classes, num_segments=num_segments, **kwargs)
     
     if pretrained:
         if 'width_mult' not in kwargs.keys():

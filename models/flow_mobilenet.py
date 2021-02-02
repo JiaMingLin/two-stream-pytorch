@@ -137,11 +137,8 @@ class MobileNetV2(nn.Module):
         # make it nn.Sequential
         self.features = nn.Sequential(*features)
 
-        # building classifier
-        self.classifier = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(self.last_channel, num_classes),
-        )
+        self.dropout = nn.Dropout(0.2)
+        self.fc = nn.Linear(self.last_channel, num_classes),
 
         # weight initialization
         for m in self.modules():
@@ -162,8 +159,12 @@ class MobileNetV2(nn.Module):
         x = self.features(x)
         # Cannot use "squeeze" as batch-size can be 1 => must use reshape with x.shape[0]
         x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)
-        x = self.classifier(x)
-        return x
+        x = self.dropout(x)
+
+        # segmental consensus
+        x = torch.reshape(x, (-1, self.num_segments, self.last_channel))
+        x = torch.mean(x,dim = 1)
+        x = self.fc(x)
 
     def forward(self, x):
         return self._forward_impl(x)
