@@ -220,7 +220,7 @@ def modified_model_dict_key(old_params):
 #         print(k1,k2,file=f)
 # f.close()
 
-def rgb_mobilenet(num_classes, pretrained=False, progress=True, num_segments=3, **kwargs):
+def rgb_mobilenet(num_classes, num_segments, pretrained=False, **kwargs):
     """
     Constructs a MobileNetV2 architecture from
     `"MobileNetV2: Inverted Residuals and Linear Bottlenecks" <https://arxiv.org/abs/1801.04381>`_.

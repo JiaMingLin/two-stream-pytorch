@@ -238,7 +238,7 @@ def modified_model_dict_key(old_params):
     return new_params
 
 
-def flow_mobilenet(pretrained=False, progress=True, **kwargs):
+def flow_mobilenet(num_classes, num_segments, pretrained=False, **kwargs):
     """
     Constructs a MobileNetV2 architecture from
     `"MobileNetV2: Inverted Residuals and Linear Bottlenecks" <https://arxiv.org/abs/1801.04381>`_.
@@ -248,7 +248,7 @@ def flow_mobilenet(pretrained=False, progress=True, **kwargs):
         progress (bool): If True, displays a progress bar of the download to stderr
     """
     in_channels = 20
-    model = MobileNetV2(**kwargs)
+    model = MobileNetV2(num_classes = num_classes, num_segments=num_segments, **kwargs)
     
     if pretrained:      
         if 'width_mult' not in kwargs.keys():
