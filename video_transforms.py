@@ -62,8 +62,8 @@ class Normalize(object):
     """
 
     def __init__(self, mean, std):
-        self.mean_t = np.array(mean).reshape((1,1,len(mean)))
-        self.std_t = np.array(std).reshape((1,1,len(std)))
+        self.mean_t = np.array(mean).reshape((len(mean),1,1))
+        self.std_t = np.array(std).reshape((len(std),1,1))
 
     def __call__(self, clips):
         # TODO: make efficient
