@@ -312,6 +312,7 @@ def validate(val_loader, model, criterion):
         for i, (input, target) in enumerate(val_loader):
             #input = input.float().cuda(async=True)
             #target = target.cuda(async=True)
+            input = input.reshape((-1,) + input.shape[2:])
             input = input.float().cuda()
             target = target.cuda()
             #input_var = torch.autograd.Variable(input, volatile=True)
