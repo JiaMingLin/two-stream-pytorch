@@ -67,13 +67,16 @@ class Normalize(object):
     """
 
     def __init__(self, mean, std):
-        self.mean_t = np.array(mean).reshape((len(mean),1,1))
-        self.std_t = np.array(std).reshape((len(std),1,1))
+        is_color = len(mean) == 3
+        self.mean_t = np.array(mean).reshape((len(mean),1,1)) if is_color else mean[0]
+        self.std_t = np.array(std).reshape((len(std),1,1)) if is_color else std[0]
 
     def __call__(self, clips):
         # TODO: make efficient
+
         new_clips = []
         for frame in clips:
+
             new_clips.append((frame-self.mean_t)/self.std_t)
 
         return new_clips
