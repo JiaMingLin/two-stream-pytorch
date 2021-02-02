@@ -157,6 +157,8 @@ class ResNet(nn.Module):
         # self.fc_aux = nn.Linear(512 * block.expansion, 101)
         self.dp = nn.Dropout(p=0.5)
         self.fc_action = nn.Linear(512 * block.expansion, num_classes)
+
+        self.num_segments = num_segments
         # self.bn_final = nn.BatchNorm1d(num_classes)
         # self.fc2 = nn.Linear(num_classes, num_classes)
         # self.fc_final = nn.Linear(num_classes, 101)
@@ -202,7 +204,7 @@ class ResNet(nn.Module):
         x = self.dp(x)
 
         # segmental consensus
-        x = torch.reshape(x, (-1, num_segments, 512))
+        x = torch.reshape(x, (-1, self.num_segments, 512))
         x = torch.mean(x,dim = 1)
 
         x = self.fc_action(x)
