@@ -166,7 +166,7 @@ class CenterCrop(object):
             for frame_id in range(num_imgs):
                 cur_img = clips[frame_id]
                 crop_img = cur_img[y1:y1+th, x1:x1+tw, :]
-                assert(crop_img.shape == (th, tw, 1))
+                assert(crop_img.shape == (th, tw, 2))
                 new_clips.append(crop_img)
             return new_clips
 
