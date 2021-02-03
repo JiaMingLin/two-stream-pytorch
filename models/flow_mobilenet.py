@@ -98,6 +98,8 @@ class MobileNetV2(nn.Module):
         """
         super(MobileNetV2, self).__init__()
 
+        self.num_segments = num_segments
+
         if block is None:
             block = InvertedResidual
         input_channel = 32 #32
