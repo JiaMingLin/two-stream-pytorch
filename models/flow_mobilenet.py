@@ -169,6 +169,8 @@ class MobileNetV2(nn.Module):
         x = torch.mean(x,dim = 1)
         x = self.fc_action(x)
 
+        return x
+
     def forward(self, x):
         return self._forward_impl(x)
 
