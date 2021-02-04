@@ -105,7 +105,7 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes, num_segments):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(20, 64, kernel_size=7, stride=2, padding=3,
@@ -121,6 +121,8 @@ class ResNet(nn.Module):
         # self.fc_aux = nn.Linear(512 * block.expansion, 101)
         self.dp = nn.Dropout(p=0.5)
         self.fc_action = nn.Linear(512 * block.expansion, num_classes)
+
+        self.num_segments = num_segments
         # self.bn_final = nn.BatchNorm1d(num_classes)
         # self.fc2 = nn.Linear(num_classes, num_classes)
         # self.fc_final = nn.Linear(num_classes, 101)
@@ -164,6 +166,10 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.dp(x)
+        # segmental consensus
+        x = torch.reshape(x, (-1, self.num_segments, 512))
+        x = torch.mean(x,dim = 1)
+
         x = self.fc_action(x)
         # x = self.bn_final(x)
         # x = self.fc2(x)
@@ -197,7 +203,7 @@ def change_key_names(old_params, in_channels):
     
     return new_params
 
-def flow_resnet18(pretrained=False, **kwargs):
+def flow_resnet18(num_classes, num_segments, pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
 
     Args:
